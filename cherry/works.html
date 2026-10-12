@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BYBRUDI - Works & Estimate</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 0 20px 60px 20px; }
+
+        /* 🍷 1px 체리레드 시그니처 탑바 */
+        .top-minimal-bar {
+            width: 100%;
+            max-width: 1080px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 50px;
+            border-bottom: 1px solid #8B0017;
+        }
+
+        .nav-arrow-btn {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8B0017;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: opacity 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-arrow-btn:hover { opacity: 0.5; }
+
+        /* 📍 대카테고리 네비게이션 */
+        .main-nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .main-btn { 
+            padding: 10px 24px; 
+            border-radius: 30px; 
+            border: 1.5px solid #111111; 
+            background: #fff; 
+            color: #111111;
+            font-size: 13px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        .main-btn.active, .main-btn:hover { background: #111111; color: #fff; }
+
+   /* 📍 소카테고리 네비게이션 (여백 넉넉하게 40px -> 60px로 확대) */
+        .sub-nav { display: flex; gap: 8px; margin-bottom: 60px; flex-wrap: wrap; justify-content: center; }
+        .sub-btn { 
+            padding: 8px 18px; 
+            border-radius: 20px; 
+            border: none; 
+            background: #f0f0f0; 
+            color: #777777; 
+            font-size: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        .sub-btn.active, .sub-btn:hover { background: #222222; color: #fff; }
+
+     /* 📍 메인 콘텐츠 뷰어 영역 (버튼들과 아래 컨텐츠 상자 사이를 확실하게 띄워줌) */
+        .content-section { 
+            width: 100%; 
+            max-width: 1080px; 
+            display: none; 
+            margin-top: 20px; /* 👈 이 부분을 추가하거나 키워주세요! (예: 20px~30px) */
+        }
+        .content-section.active-section { display: block; }
+        
+        
+        /* 1️⃣ 일반 갤러리 카드 레이아웃 (WEB, PRINT, OTHER) */
+        .gallery-container { column-count: 3; column-gap: 20px; width: 100%; }
+        .gallery-card { break-inside: avoid; margin-bottom: 20px; position: relative; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.25s ease; }
+        .gallery-card:hover { transform: translateY(-4px); }
+        .gallery-card img { width: 100%; height: auto; display: block; }
+        .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; color: #fff; padding: 20px; text-align: center; }
+        .gallery-card:hover .card-overlay { opacity: 1; }
+        .card-overlay h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+
+        /* 2️⃣ DEVELOP 탭 전용 가로형 와이드 뷰 (PPT 비율 느낌) */
+        .develop-container { display: flex; flex-direction: column; gap: 30px; width: 100%; }
+        .develop-wide-card { width: 100%; background: #f9f9fb; border-radius: 12px; overflow: hidden; border: 1px solid #eee; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s; }
+        .develop-wide-card:hover { transform: translateY(-3px); }
+        .develop-wide-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+        .develop-wide-info { padding: 24px; }
+        .develop-wide-info h3 { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 8px; }
+        .develop-wide-info p { font-size: 14px; color: #666; line-height: 1.5; }
+
+        /* 3️⃣ PRICE 탭: 쇼핑몰 장바구니식 자동 견적 계산기 */
+        .price-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+        .price-menu-box { background: #fafafa; padding: 24px; border-radius: 12px; border: 1px solid #eee; }
+        .price-menu-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #111; }
+        .option-add-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .option-add-row select { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
+        .option-add-row button { padding: 10px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        
+        .estimator-cart-box { background: #fff; padding: 24px; border-radius: 12px; border: 2px solid #111; position: sticky; top: 20px; }
+        .estimator-cart-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .cart-item-list { min-height: 120px; max-height: 250px; overflow-y: auto; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px 10px; background: #f9f9fb; border-radius: 6px; }
+        .cart-item-row button { background: none; border: none; color: #ff4d4d; cursor: pointer; font-weight: bold; }
+        .cart-total-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; padding-top: 16px; margin-bottom: 20px; font-size: 15px; font-weight: 700; }
+        .cart-total-bar strong { font-size: 22px; color: #8B0017; }
+        .to-contact-btn { width: 100%; padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+        /* 4️⃣ CONTACT 탭: 구글 시트 연동형 폼 */
+        /* CONTACT 폼 박스 위쪽 여백 */
+        .contact-form-box { max-width: 680px; margin: 20px auto 0 auto; display: flex; flex-direction: column; gap: 16px; background: #f9f9fb; padding: 30px; border-radius: 12px; border: 1px solid #eee; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; font-weight: 700; color: #333; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fff; }
+        .form-group textarea { height: 120px; resize: vertical; }
+        .contact-submit-btn { padding: 14px; background: #111; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+        .contact-submit-btn:hover { background: #8B0017; }
+
+        /* 공통 유틸 */
+        .empty-msg { text-align: center; padding: 60px 0; color: #999; font-size: 14px; grid-column: 1 / -1; }
+
+        /* 모달 창 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); padding: 20px; }
+        .modal-container { background: #fff; width: 100%; max-width: 860px; height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #eee; background: #fff; }
+        .modal-title { font-size: 16px; font-weight: 600; color: #111; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .detail-desc { width: 100%; max-width: 860px; font-size: 14px; line-height: 1.7; color: #444; white-space: pre-line; background: #f9f9fb; padding: 20px; border-radius: 8px; }
+        .detail-img { width: 100%; max-width: 860px; height: auto; border-radius: 8px; display: block; }
+
+        /* 페이드 오버레이 */
+        .minimal-fade-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #8B0017; z-index: 9999; pointer-events: none; opacity: 1; transition: opacity 0.35s ease-in-out; }
+        .minimal-fade-overlay.is-hidden { opacity: 0; }
+
+        @media (max-width: 800px) {
+            /* PRICE 탭 레이아웃 위쪽 여백 */
+        .price-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; margin-top: 20px; }
+        .gallery-container { column-count: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="minimal-fade-overlay" id="minimalOverlay"></div>
+
+    <!-- 상단 탑바 -->
+    <header class="top-minimal-bar">
+        <a href="/layout/brudi/00_cherry.html" class="nav-arrow-btn">&larr; SPECIAL NOW</a>
+        <a href="/index.html" class="nav-arrow-btn">HOME &rarr;</a>
+    </header>
+
+    <!-- 대카테고리 네비게이션 -->
+    <nav class="main-nav">
+        <button class="main-btn active" onclick="switchMainTab('DEVELOP', this)">DEVELOP</button>
+        <button class="main-btn" onclick="switchMainTab('WEB', this)">WEB</button>
+        <button class="main-btn" onclick="switchMainTab('PRINT', this)">PRINT</button>
+        <button class="main-btn" onclick="switchMainTab('OTHER', this)">OTHER</button>
+        <button class="main-btn" onclick="switchMainTab('PRICE', this)">PRICE</button>
+        <button class="main-btn" onclick="switchMainTab('CONTACT', this)">CONTACT</button>
+    </nav>
+
+    <!-- 소카테고리 네비게이션 -->
+    <nav class="sub-nav" id="subNavArea">
+        <!-- 동적으로 바뀜 -->
+    </nav>
+
+    <!-- 📌 콘텐츠 영역 1: DEVELOP 탭 (와이드 뷰) -->
+    <section id="section-DEVELOP" class="content-section active-section">
+        <div class="develop-container" id="developGallery"></div>
+    </section>
+
+    <!-- 📌 콘텐츠 영역 2: WEB / PRINT / OTHER 탭 (카드 갤러리) -->
+    <section id="section-GALLERY" class="content-section">
+        <main class="gallery-container" id="gallery"></main>
+    </section>
+
+    <!-- 📌 콘텐츠 영역 3: PRICE 탭 (자동 견적 계산기) -->
+    <section id="section-PRICE" class="content-section">
+        <div class="price-layout">
+            <div class="price-menu-box">
+                <h3>🛠️ 작업 항목 선택 및 추가</h3>
+                <div class="option-add-row">
+                    <select id="itemSelect">
+                        
+                        <option value="프로모션 배너 (1개)|30000">프로모션 배너 (30,000원)</option>
+                        
+                        <option value="기본 상세페이지 디자인|150000">상세페이지 기본형 (300,000원)</option>
+                        <option value="기본 상세페이지 디자인|150000">상세페이지 gif형 (400,000원)</option>
+                        <option value="상세페이지 set1 |450000">상세페이지 set1 (450,000원)</option>
+                        <option value="상세페이지 set1 |450000">상세페이지 set2 (600,000원)</option>
+                        <option value="상세페이지 set1 |450000">상세페이지 set3 (800,000원)</option>
+                        <option value="상세페이지 기획 추가 |200000">+기획 추가 (200,000원)</option>
+                        <option value="상세페이지 촬영 추가 |200000">+소품 촬영/보정 추가 (200,000원)</option>
+                        <option value="썸네일 추가 1장 |2000">+썸네일 추가 1장 (2,000원)</option>
+                        
+                        <option value="카드뉴스 세트 (5장)|100000">카드뉴스 세트 5장 (100,000원)</option>
+                        <option value="카드뉴스 세트 (10장)|150000">카드뉴스 세트 10장 (150,000원)</option>
+                        
+                        <option value="편집 인쇄물 (전단지)|20000">전단지 1P 당 (20,000원)</option>
+                        <option value="편집 인쇄물 (메뉴판)|30000">메뉴판 1P 당 (30,000원)</option>
+                        
+                        <option value="누끼 추가 1장 |5000">+누끼 추가 1장 (5,000원)</option>
+                        <option value="이미지 보정 1장 |15000">이미지 보정 (15,000원)</option>
+                        
+                        <option value="패키지 박스/라벨 디자인|200000">패키지 박스/라벨 디자인 (200,000원)</option>
+                        
+                        <option value="CAFE24 세팅 및 디자인 구축|350000">CAFE24 세팅 및 구축 (350,000원)</option>
+                        <option value="브랜드 홈페이지 구축 원페이지|1000000">브랜드 홈페이지 구축 (1,000,000원)</option>
+                        <option value="브랜드 홈페이지 구축 프리미엄|3000000">브랜드 홈페이지 구축 프리미엄 (3,000,000원)</option>
+                         <option value="홈페이지 구축 페이지 추가|500000">+홈페이지 페이지 추가 (500,000원)</option>
+                    </select>
+                    <button onclick="addCartItem()">추가</button>
+                </div>
+                <p style="font-size: 12px; color: #777; margin-top: 10px;">* 원하시는 항목을 선택 후 [추가] 버튼을 누르시면 우측 견적서에 누적됩니다.</p>
+                <p style="font-size: 12px; color: #777; margin-top: 10px;">* 참조 가격은 포트폴리오 내 레퍼런스 단가 및 하단 안내를 참고 바랍니다.</p>
+            </div>
+
+            <div class="estimator-cart-box">
+                <h3>📋 실시간 예상 견적 내역</h3>
+                <div class="cart-item-list" id="cartItemList">
+                    <div style="color: #999; font-size: 13px; text-align: center; padding-top: 40px;">선택된 항목이 없습니다.</div>
+                </div>
+                <div class="cart-total-bar">
+                    <span>총 예상 금액</span>
+                    <strong id="cartTotalPrice">0 원</strong>
+                </div>
+                <button class="to-contact-btn" onclick="moveToContactForm()">이 견적으로 문의하기 &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📌 콘텐츠 영역 4: CONTACT 탭 (문의 작성 폼) -->
+    <section id="section-CONTACT" class="content-section">
+        <form class="contact-form-box" id="contactForm" onsubmit="submitContactForm(event)">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">PROJECT INQUIRY</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">작성해주신 내용은 구글 시트로 안전하게 자동 접수됩니다.</p>
+
+            <div class="form-group">
+                <label>업체명 / 성함</label>
+                <input type="text" id="cName" placeholder="이름 또는 업체명을 적어주세요." required>
+            </div>
+            <div class="form-group">
+                <label>연락처</label>
+                <input type="text" id="cPhone" placeholder="통화X, 소통가능한 연락처 기재해주세요." required>
+            </div>
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="email" id="cEmail" placeholder="이메일을 적어주세요." required>
+            </div>
+            <div class="form-group">
+                <label>예산</label>
+                <input type="text" id="cBudget" placeholder="단가표에서 예상 견적 확인해주세요.">
+            </div>
+            <div class="form-group">
+                <label>마감일</label>
+                <input type="date" id="cDeadline">
+            </div>
+            <div class="form-group">
+                <label>요청 작업</label>
+                <input type="text" id="cWork" placeholder="필요한 작업물을 간략히 기재해주세요.">
+            </div>
+            <div class="form-group">
+                <label>참고 래퍼런스 링크</label>
+                <input type="text" id="cRef" placeholder="원하시는 디자인 참고할 링크 있으면 기재해주세요.">
+            </div>
+            <div class="form-group">
+                <label>기타 사항 / 메모</label>
+                <textarea id="cMemo" placeholder="문의를 자세하게 남겨주실수록 정확한 견적 안내와 작업소요일 안내가 가능합니다."></textarea>
+            </div>
+            <button type="submit" class="contact-submit-btn">문의 접수하기</button>
+        </form>
+    </section>
+
+    <!-- 상세 모달 창 -->
+    <div class="modal-overlay" id="detailModal" onclick="closeModalOnBg(event)">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">작품 상세</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        /* 페이드 인 */
+        window.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('minimalOverlay');
+            requestAnimationFrame(() => overlay.classList.add('is-hidden'));
+        });
+
+        document.querySelectorAll('.nav-arrow-btn').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetUrl = this.getAttribute('href');
+                if (targetUrl && !targetUrl.startsWith('#')) {
+                    e.preventDefault();
+                    const overlay = document.getElementById('minimalOverlay');
+                    overlay.classList.remove('is-hidden');
+                    setTimeout(() => window.location.href = targetUrl, 350);
+                }
+            });
+        });
+
+        /* 소카테고리 구성 데이터 */
+        const subCategories = {
+            DEVELOP: ['ALL', 'DEVELOP', 'CAFE24'],
+            WEB: ['ALL', 'BANNER', 'DETAIL', 'CARD', 'AD+'],
+            PRINT: ['ALL', 'EDITORIAL', 'PACKAGING'],
+            OTHER: ['ALL', 'SPACE&3D', 'PHOTO', 'EDIT']
+        };
+
+        let currentMain = 'DEVELOP';
+        let currentSub = 'ALL';
+        let cartItems = [];
+
+        function switchMainTab(mainCat, btn) {
+            currentMain = mainCat;
+            currentSub = 'ALL';
+            document.querySelectorAll('.main-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 섹션 토글
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
+            
+            const subNavArea = document.getElementById('subNavArea');
+
+            if (mainCat === 'PRICE') {
+                subNavArea.style.display = 'none';
+                document.getElementById('section-PRICE').classList.add('active-section');
+            } else if (mainCat === 'CONTACT') {
+                subNavArea.style.display = 'none';
+                document.getElementById('section-CONTACT').classList.add('active-section');
+            } else if (mainCat === 'DEVELOP') {
+                subNavArea.style.display = 'flex';
+                renderSubNav(mainCat);
+                document.getElementById('section-DEVELOP').classList.add('active-section');
+                loadDevelopItems();
+            } else {
+                subNavArea.style.display = 'flex';
+                renderSubNav(mainCat);
+                document.getElementById('section-GALLERY').classList.add('active-section');
+                loadGalleryItems();
+            }
+        }
+
+        function renderSubNav(mainCat) {
+            const subNavArea = document.getElementById('subNavArea');
+            subNavArea.innerHTML = '';
+            const list = subCategories[mainCat] || ['ALL'];
+            list.forEach((sub, idx) => {
+                const b = document.createElement('button');
+                b.className = `sub-btn ${idx === 0 ? 'active' : ''}`;
+                b.innerText = sub;
+                b.onclick = () => switchSubTab(sub, b);
+                subNavArea.appendChild(b);
+            });
+        }
+
+        function switchSubTab(sub, btn) {
+            currentSub = sub;
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (currentMain === 'DEVELOP') {
+                loadDevelopItems();
+            } else {
+                loadGalleryItems();
+            }
+        }
+
+        function getSafePortfolio() {
+            return JSON.parse(localStorage.getItem('bybrudi_portfolio') || '[]');
+        }
+
+        /* 갤러리 렌더링 (WEB, PRINT, OTHER) */
+        function loadGalleryItems() {
+            const items = getSafePortfolio();
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            const filtered = items.filter(item => {
+                const matchMain = (item.mainCat === currentMain);
+                const matchSub = (currentSub === 'ALL') || (item.subCat === currentSub);
+                return matchMain && matchSub;
+            });
+
+            if (filtered.length === 0) {
+                gallery.innerHTML = '<div class="empty-msg">등록된 포트폴리오가 없습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'gallery-card';
+                card.innerHTML = `
+                    <img src="${item.image || 'https://via.placeholder.com/400x300'}" alt="${item.title}">
+                    <div class="card-overlay">
+                        <h3>${item.title}</h3>
+                        <span>${item.subCat || item.mainCat}</span>
+                    </div>
+                `;
+                card.onclick = () => openModal(item);
+                gallery.appendChild(card);
+            });
+        }
+
+        /* DEVELOP 와이드 뷰 렌더링 */
+        function loadDevelopItems() {
+            const items = getSafePortfolio();
+            const container = document.getElementById('developGallery');
+            container.innerHTML = '';
+
+            const filtered = items.filter(item => {
+                const matchMain = (item.mainCat === 'DEVELOP');
+                const matchSub = (currentSub === 'ALL') || (item.subCat === currentSub);
+                return matchMain && matchSub;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-msg">등록된 DEVELOP 작업물이 없습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'develop-wide-card';
+                card.innerHTML = `
+                    <img class="develop-wide-img" src="${item.image || 'https://via.placeholder.com/800x450'}" alt="${item.title}">
+                    <div class="develop-wide-info">
+                        <h3>${item.title}</h3>
+                        <p>${item.description || '상세 설명이 없습니다.'}</p>
+                    </div>
+                `;
+                card.onclick = () => openModal(item);
+                container.appendChild(card);
+            });
+        }
+
+        /* PRICE 장바구니 계산기 로직 */
+        function addCartItem() {
+            const select = document.getElementById('itemSelect');
+            const val = select.value.split('|');
+            const name = val[0];
+            const price = parseInt(val[1]);
+
+            cartItems.push({ name, price });
+            renderCart();
+        }
+
+        function removeCartItem(index) {
+            cartItems.splice(index, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartItemList');
+            list.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                list.innerHTML = '<div style="color: #999; font-size: 13px; text-align: center; padding-top: 40px;">선택된 항목이 없습니다.</div>';
+                document.getElementById('cartTotalPrice').innerText = '0 원';
+                return;
+            }
+
+            let total = 0;
+            cartItems.forEach((item, idx) => {
+                total += item.price;
+                const row = document.createElement('div');
+                row.className = 'cart-item-row';
+                row.innerHTML = `
+                    <span>${item.name} (${item.price.toLocaleString()}원)</span>
+                    <button onclick="removeCartItem(${idx})">&times;</button>
+                `;
+                list.appendChild(row);
+            });
+
+            document.getElementById('cartTotalPrice').innerText = total.toLocaleString() + ' 원';
+        }
+
+        function moveToContactForm() {
+            const totalStr = document.getElementById('cartTotalPrice').innerText;
+            document.getElementById('cBudget').value = totalStr;
+            
+            // 탭 이동
+            const contactBtn = Array.from(document.querySelectorAll('.main-btn')).find(b => b.innerText === 'CONTACT');
+            if (contactBtn) switchMainTab('CONTACT', contactBtn);
+        }
+
+  function submitContactForm(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('cName').value,
+        phone: document.getElementById('cPhone').value,
+        email: document.getElementById('cEmail').value,
+        work: document.getElementById('cWork').value,
+        ref: document.getElementById('cRef').value,
+        budget: document.getElementById('cBudget').value,
+        deadline: document.getElementById('cDeadline').value,
+        memo: document.getElementById('cMemo').value
+    };
+
+    // 💡 아래 'YOUR_GOOGLE_APPS_SCRIPT_URL' 자리에 발급받은 웹 앱 URL을 넣고 주석을 풀어주세요!
+   
+    fetch('https://script.google.com/macros/s/AKfycbxFDF-XAN7Q95OPq3RUv5KfsZnajW2Y1jMjiPE8L31REhlLzUjsG4OPiDq45erwMZyi/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(data)
+    }).then(() => {
+        alert('문의가 성공적으로 접수되었습니다!');
+        document.getElementById('contactForm').reset();
+    }).catch(err => {
+        console.error(err);
+        alert('접수 중 오류가 발생했습니다.');
+    });
+
+    // 테스트용 알림 (URL 연동 전 확인용)
+    alert('문의가 성공적으로 접수되었습니다! (구글 시트 연동 URL을 입력해주세요)');
+    document.getElementById('contactForm').reset();
+}
+
+        /* 모달 제어 */
+        function openModal(item) {
+            const modal = document.getElementById('detailModal');
+            document.getElementById('modalTitle').innerText = item.title;
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '';
+
+            if (item.description) {
+                const d = document.createElement('div');
+                d.className = 'detail-desc';
+                d.innerText = item.description;
+                body.appendChild(d);
+            }
+            if (item.image) {
+                const img = document.createElement('img');
+                img.className = 'detail-img';
+                img.src = item.image;
+                body.appendChild(img);
+            }
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalOnBg(e) {
+            if (e.target.id === 'detailModal') closeModal();
+        }
+
+        // 초기 실행
+        switchMainTab('DEVELOP', document.querySelector('.main-btn'));
+    </script>
+</body>
+</html>
