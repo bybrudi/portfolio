@@ -8,7 +8,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* 🍷 기본 배경은 체리레드 */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
             background: #7A0C1E; 
@@ -22,9 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* ==========================================
-            🔒 미니멀 잠금 화면 (Lock Screen) 디자인
-            ========================================== */
         #lockScreen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -64,25 +60,12 @@
             margin-bottom: 6px;
         }
 
-        .home-link:hover {
-            color: #FFFDF9;
-        }
+        .home-link:hover { color: #FFFDF9; }
+        .lock-icon { font-size: 15px; line-height: 1; letter-spacing: normal; }
 
-        .lock-icon {
-            font-size: 15px;
-            line-height: 1;
-            letter-spacing: normal;
-        }
-
-        .pin-dots {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-
+        .pin-dots { display: flex; gap: 16px; align-items: center; }
         .pin-dot {
-            width: 12px;
-            height: 12px;
+            width: 12px; height: 12px;
             border-radius: 50%;
             border: 1.5px solid rgba(255, 253, 249, 0.4);
             background: transparent;
@@ -100,19 +83,10 @@
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
         }
-        .pin-dots.shake {
-            animation: shake 0.4s ease-in-out;
-        }
+        .pin-dots.shake { animation: shake 0.4s ease-in-out; }
 
-        #pinInput {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
+        #pinInput { position: absolute; opacity: 0; pointer-events: none; }
 
-        /* ==========================================
-            🛠️ 관리자 대시보드 화면 (로그인 후 노출)
-            ========================================== */
         #adminDashboard {
             width: 100%;
             max-width: 650px;
@@ -121,13 +95,9 @@
             transition: opacity 0.8s ease;
         }
 
-        #adminDashboard.unlocked {
-            display: block;
-            opacity: 1;
-        }
+        #adminDashboard.unlocked { display: block; opacity: 1; }
 
         .admin-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); color: #1d1d1f; }
-        
         h2 { font-size: 20px; margin-bottom: 24px; color: #1d1d1f; text-align: center; font-weight: 600; }
         .form-group { margin-bottom: 20px; }
         label { font-size: 13px; font-weight: 600; color: #6e6e73; display: block; margin-bottom: 8px; }
@@ -142,7 +112,6 @@
         .item-info img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
         .item-details { display: flex; flex-direction: column; overflow: hidden; }
         .item-details a { font-size: 13px; color: #0071e3; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
-        .item-details a:hover { text-decoration: underline; }
         .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
         .btn-edit { background: #0071e3; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .btn-del { background: #ff3b30; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
@@ -150,7 +119,6 @@
 </head>
 <body onclick="document.getElementById('pinInput').focus()">
 
-    <!-- 🔒 미니멀 슬로우 잠금 화면 -->
     <div id="lockScreen">
         <div class="lock-container">
             <a href="/" class="home-link">CLICK HERE</a>
@@ -167,11 +135,10 @@
         <input type="password" id="pinInput" maxlength="6" autofocus>
     </div>
 
-    <!-- 🛠️ 관리자 대시보드 메인 내용 -->
     <div id="adminDashboard">
         <div class="admin-wrap">
             <div class="admin-card">
-                <h2 id="formTitle">작품 업로드</h2>
+                <h2 id="formTitle">작품 업로드 (GitHub 연동형)</h2>
                 <form id="uploadForm">
                     <input type="hidden" id="editId">
                     
@@ -205,58 +172,99 @@
                         <input type="text" id="tistoryUrl" placeholder="https://bybrudi.tistory.com/entry/..." required>
                     </div>
 
-                    <button type="submit" class="btn-submit" id="submitBtn">등록하기</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">저장하기</button>
                     <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">수정 취소</button>
                 </form>
             </div>
 
             <div class="admin-card">
                 <h2>등록된 작품 목록</h2>
-                <div class="item-list" id="itemList"></div>
+                <div class="item-list" id="itemList">동기화 중...</div>
             </div>
         </div>
     </div>
 
 <script>
-    const ADMIN_PIN = "202610"; 
+    
+// 🔑 GitHub 기본 정보만 남기고 토큰은 코드에서 제거합니다.
+const GITHUB_USERNAME = "본인_깃허브_아이디"; 
+const REPO_NAME = "본인_저장소_이름"; 
+const FILE_PATH = "data.json";
 
-    const pinInput = document.getElementById('pinInput');
-    const pinDots = document.getElementById('pinDots');
-    const lockScreen = document.getElementById('lockScreen');
-    const adminDashboard = document.getElementById('adminDashboard');
-    const dots = pinDots.querySelectorAll('.pin-dot');
-
-    window.addEventListener('click', () => {
-        pinInput.focus();
-    });
-
-    pinInput.addEventListener('input', (e) => {
-        const val = pinInput.value;
-        
-        dots.forEach((dot, index) => {
-            if (index < val.length) {
-                dot.classList.add('filled');
-            } else {
-                dot.classList.remove('filled');
-            }
-        });
-
-        if (val.length === 6) {
-            if (val === ADMIN_PIN) {
-                lockScreen.style.opacity = '0';
-                lockScreen.style.visibility = 'hidden';
-                adminDashboard.classList.add('unlocked');
-                document.body.style.background = '#f5f5f7';
-            } else {
-                pinDots.classList.add('shake');
-                setTimeout(() => {
-                    pinDots.classList.remove('shake');
-                    pinInput.value = '';
-                    dots.forEach(dot => dot.classList.remove('filled'));
-                }, 400);
-            }
+// 토큰을 세션에서 가져오거나, 없으면 팝업창으로 안전하게 입력받는 함수
+function getGithubToken() {
+    let token = sessionStorage.getItem('gh_token');
+    if (!token) {
+        token = prompt("🔒 GitHub 개인 액세스 토큰(ghp_...)을 입력해 주세요:");
+        if (token && token.trim().startsWith('ghp_')) {
+            sessionStorage.setItem('gh_token', token.trim());
+        } else {
+            alert("올바른 토큰을 입력하지 않으면 저장/수정이 불가능합니다.");
+            return null;
         }
-    });
+    }
+    return token;
+}
+
+// 🌐 GitHub API 호출 시 토큰 가져와서 헤더에 적용
+async function fetchFromGithub() {
+    const token = getGithubToken();
+    if (!token) return [];
+
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+    try {
+        const res = await fetch(url, {
+            headers: { Authorization: `token ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            currentSha = data.sha;
+            const content = decodeURIComponent(escape(atob(data.content)));
+            const items = JSON.parse(content || '[]');
+            renderAdminList(items);
+            return items;
+        }
+        return [];
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
+}
+
+    // 🌐 GitHub API: data.json 저장하기
+    async function saveToGithub(items) {
+        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+        const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(items, null, 2))));
+        
+        const bodyData = {
+            message: "Update portfolio data via Admin",
+            content: contentEncoded,
+            sha: currentSha
+        };
+
+        try {
+            const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
+            });
+
+            if (res.ok) {
+                const resData = await res.json();
+                currentSha = resData.content.sha;
+                alert('GitHub 서버에 성공적으로 동기화 저장되었습니다! 🎉');
+                renderAdminList(items);
+            } else {
+                alert('저장 실패: GitHub 토큰 권한을 확인하세요.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('네트워크 오류가 발생했습니다.');
+        }
+    }
 
     const uploadForm = document.getElementById('uploadForm');
     const formTitle = document.getElementById('formTitle');
@@ -268,18 +276,7 @@
     const imageUrlInput = document.getElementById('imageUrl');
     const tistoryUrlInput = document.getElementById('tistoryUrl');
 
-    function getSafeItems() {
-        const rawItems = JSON.parse(localStorage.getItem('bybrudi_portfolio_v2') || '[]');
-        return rawItems.map(item => ({
-            id: item.id,
-            mainCat: item.mainCat || 'WEB',
-            subCat: item.subCat || 'BANNER',
-            imageUrl: item.imageUrl || '',
-            tistoryUrl: item.tistoryUrl || ''
-        }));
-    }
-
-    uploadForm.addEventListener('submit', function(e) {
+    uploadForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const mainCat = mainCatInput.value;
@@ -288,12 +285,10 @@
         const tistoryUrl = tistoryUrlInput.value.trim();
         const editId = editIdInput.value;
 
-        if (!imageUrl || !tistoryUrl) {
-            alert('이미지 주소와 티스토리 링크를 모두 입력해 주세요.');
-            return;
-        }
+        submitBtn.innerText = "저장 중...";
+        submitBtn.disabled = true;
 
-        let items = getSafeItems();
+        let items = await fetchFromGithub();
 
         if (editId) {
             const targetIndex = items.findIndex(item => Number(item.id) === Number(editId));
@@ -302,9 +297,6 @@
                 items[targetIndex].subCat = subCat;
                 items[targetIndex].imageUrl = imageUrl;
                 items[targetIndex].tistoryUrl = tistoryUrl;
-
-                localStorage.setItem('bybrudi_portfolio_v2', JSON.stringify(items));
-                alert('작품이 정상적으로 수정되었습니다! ✏️');
             }
         } else {
             const newItem = {
@@ -314,22 +306,19 @@
                 imageUrl: imageUrl,
                 tistoryUrl: tistoryUrl
             };
-
             items.unshift(newItem);
-            localStorage.setItem('bybrudi_portfolio_v2', JSON.stringify(items));
-            alert('작품이 정상적으로 등록되었습니다! 🎉');
         }
 
+        await saveToGithub(items);
         resetForm();
-        renderAdminList();
+        submitBtn.disabled = false;
     });
 
-    function renderAdminList() {
-        const items = getSafeItems();
+    function renderAdminList(items) {
         const itemList = document.getElementById('itemList');
         itemList.innerHTML = '';
 
-        if (items.length === 0) {
+        if (!items || items.length === 0) {
             itemList.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; padding:20px;">등록된 작품이 없습니다.</div>';
             return;
         }
@@ -354,8 +343,8 @@
         });
     }
 
-    function editItem(id) {
-        const items = getSafeItems();
+    async function editItem(id) {
+        const items = await fetchFromGithub();
         const item = items.find(i => Number(i.id) === Number(id));
 
         if (item) {
@@ -380,20 +369,17 @@
         tistoryUrlInput.value = '';
 
         formTitle.innerText = '작품 업로드';
-        submitBtn.innerText = '등록하기';
+        submitBtn.innerText = '저장하기';
         cancelBtn.style.display = 'none';
     }
 
-    function deleteItem(id) {
+    async function deleteItem(id) {
         if (confirm('이 작품을 삭제하시겠습니까?')) {
-            let items = getSafeItems();
+            let items = await fetchFromGithub();
             items = items.filter(item => Number(item.id) !== Number(id));
-            localStorage.setItem('bybrudi_portfolio_v2', JSON.stringify(items));
-            renderAdminList();
+            await saveToGithub(items);
         }
     }
-
-    renderAdminList();
 </script>
 </body>
 </html>
