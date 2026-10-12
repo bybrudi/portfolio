@@ -125,8 +125,9 @@
         .modal-header { display: none; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #eee; background: #fff; }
         .modal-title { font-size: 16px; font-weight: 600; color: #111; }
         .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-        .modal-body { flex: 1; overflow-y: auto; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .modal-iframe { width: 100%; height: 100%; border: none; }
+        .modal-body { flex: 1; overflow: hidden !important;position: relative;padding: 0 !important}
+        .modal-iframe { width: 100%; height: calc(100% + 90px);margin-top: -90px;border: none;}
+        
 
         /* 페이드 오버레이 */
         .minimal-fade-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #8B0017; z-index: 9999; pointer-events: none; opacity: 1; transition: opacity 0.35s ease-in-out; }
