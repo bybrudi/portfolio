@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* 🍷 기본 배경은 체리레드, 잠금 상태일 때는 스크롤 차단 */
+        /* 🍷 기본 배경은 체리레드 */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
             background: #7A0C1E; 
@@ -41,7 +41,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
+            gap: 20px;
             opacity: 0;
             transform: translateY(15px);
             animation: slowAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -52,9 +52,26 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
+        /* 홈으로 돌아가는 텍스트 링크 스타일 */
+        .home-link {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: rgba(255, 253, 249, 0.7);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .home-link:hover {
+            color: #FFFDF9;
+        }
+
         /* 자물쇠 이모지 스타일 */
         .lock-icon {
-            font-size: 24px;
+            font-size: 12px;
             line-height: 1;
             letter-spacing: normal;
         }
@@ -77,8 +94,8 @@
 
         /* 숫자가 입력될 때 채워지는 원 (크림 아이보리) */
         .pin-dot.filled {
-            background: #FFFDF9;
-            border-color: #FFFDF9;
+            background: #900f24;
+            border-color: #900f24;
             transform: scale(1.1);
         }
 
@@ -148,6 +165,7 @@
     <!-- 🔒 미니멀 슬로우 잠금 화면 -->
     <div id="lockScreen">
         <div class="lock-container">
+            <a href="/" class="home-link">HOME</a>
             <div class="lock-icon">🔒</div>
             <div class="pin-dots" id="pinDots">
                 <div class="pin-dot"></div>
@@ -246,8 +264,8 @@
     </div>
 
 <script>
-    // 🔑 
-    const ADMIN_PIN = "202610"; 
+    // 🔑 [중요] 관리자 비밀번호 6자리 설정 (원하시는 숫자로 변경 가능합니다!)
+    const ADMIN_PIN = "123456"; 
 
     const pinInput = document.getElementById('pinInput');
     const pinDots = document.getElementById('pinDots');
