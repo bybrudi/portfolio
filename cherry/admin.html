@@ -2,22 +2,144 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BYBRUDI - Admin Management</title>
+    <title>BY BRUDI - Admin Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
         
-        .admin-wrap { width: 100%; max-width: 650px; }
-        .admin-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        /* 🍷 기본 배경은 체리레드 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #7A0C1E; 
+            color: #FFFDF9; 
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding: 40px 20px; 
+            overflow-x: hidden;
+        }
+
+        /* ==========================================
+           🔒 미니멀 잠금 화면 (Lock Screen) 디자인
+           ========================================== */
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #7A0C1E;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .lock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: slowAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slowAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 홈으로 돌아가는 텍스트 링크 스타일 */
+        .home-link {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: rgba(255, 253, 249, 0.7);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.2s ease;
+            margin-bottom: 6px;
+        }
+
+        .home-link:hover {
+            color: #FFFDF9;
+        }
+
+        /* 자물쇠 이모지 스타일 */
+        .lock-icon {
+            font-size: 15px;
+            line-height: 1;
+            letter-spacing: normal;
+        }
+
+        /* 미니멀한 빈 원형 슬롯 6개 */
+        .pin-dots {
+            display: flex;
+            gap: 16px; /* 원들 사이의 여유로운 간격 */
+            align-items: center;
+        }
+
+        .pin-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 253, 249, 0.4); /* 빈 원형 테두리 */
+            background: transparent;
+            transition: all 0.25s ease;
+        }
+
+        /* 숫자가 입력될 때 채워지는 원 (크림 아이보리) */
+        .pin-dot.filled {
+            background: #900f24;
+            border-color: #900f24;
+            transform: scale(1.1);
+        }
+
+        /* 틀렸을 때 좌우로 흔들리는 애니메이션 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .pin-dots.shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* 숨겨진 실제 입력 필드 (포커스 유지용) */
+        #pinInput {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           🛠️ 관리자 대시보드 화면 (로그인 후 노출)
+           ========================================== */
+        #adminDashboard {
+            width: 100%;
+            max-width: 650px;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.8s ease;
+        }
+
+        #adminDashboard.unlocked {
+            display: block;
+            opacity: 1;
+        }
+
+        .admin-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); color: #1d1d1f; }
         
         h2 { font-size: 20px; margin-bottom: 24px; color: #1d1d1f; text-align: center; font-weight: 600; }
         .form-group { margin-bottom: 20px; }
         label { font-size: 13px; font-weight: 600; color: #6e6e73; display: block; margin-bottom: 8px; }
-        input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; background: #fff; font-family: inherit; }
+        input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; background: #fff; font-family: inherit; color: #1d1d1f; }
         textarea { resize: vertical; height: 100px; }
         
-        /* 파일 선택 및 삭제 버튼 정렬 */
         .file-input-wrap { display: flex; gap: 8px; align-items: center; }
         .file-input-wrap input[type="file"] { flex: 1; }
         .btn-file-clear { padding: 12px 16px; background: #ff3b30; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
@@ -38,90 +160,158 @@
         .btn-del { background: #ff3b30; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
-<body>
+<body onclick="document.getElementById('pinInput').focus()">
 
-<div class="admin-wrap">
-    <div class="admin-card">
-        <h2 id="formTitle">작품 업로드</h2>
-        <form id="uploadForm">
-            <input type="hidden" id="editId">
-            <input type="hidden" id="removeConsultImageFlag" value="false">
-            
-            <div class="form-group">
-                <label>작품 제목</label>
-                <input type="text" id="title" placeholder="예: 네이버 쇼핑 라이브 배너" required>
+    <!-- 🔒 미니멀 슬로우 잠금 화면 -->
+    <div id="lockScreen">
+        <div class="lock-container">
+            <a href="/" class="home-link">CLICK HERE</a>
+            <div class="lock-icon">🔒</div>
+            <div class="pin-dots" id="pinDots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
             </div>
-
-            <div class="form-group">
-                <label>설명 텍스트 (줄바꿈 반영)</label>
-                <textarea id="description" placeholder="작품 관련 설명을 입력해 주세요."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>대카테고리</label>
-                <select id="mainCat">
-                    <option value="WEB">WEB</option>
-                    <option value="PRINT">PRINT</option>
-                    <option value="OTHER">OTHER</option>
-                    <option value="PRICE">PRICE</option>
-                    <option value="CONTACT">CONTACT</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>소카테고리 (WEB 선택 시)</label>
-                <select id="subCat">
-                    <option value="BANNER">BANNER</option>
-                    <option value="DETAIL">DETAIL</option>
-                    <option value="PHOTO">PHOTO</option>
-                </select>
-            </div>
-
-            <!-- 💡 선택사항: 삭제 버튼이 추가된 상담 내역 캡처 영역 -->
-            <div class="form-group">
-                <label>상담 내역 캡처 이미지 선택 (선택 사항)</label>
-                <div class="file-input-wrap">
-                    <input type="file" id="consultFile" accept="image/*">
-                    <button type="button" class="btn-file-clear" onclick="clearConsultFile()">삭제</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>메인 시안 등록 방식 선택</label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="viewType" value="file" checked onclick="toggleType('file')"> 이미지 파일 직접 업로드
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewType" value="tistory" onclick="toggleType('tistory')"> 티스토리 상세 링크 입력
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group" id="fileInputArea">
-                <label>실제 메인 배너/시안 이미지 선택</label>
-                <input type="file" id="bannerFile" accept="image/*">
-            </div>
-
-            <div class="form-group" id="tistoryInputArea" style="display: none;">
-                <label>티스토리 상세페이지 링크 (URL)</label>
-                <input type="text" id="detailUrl" placeholder="https://brudi.tistory.com/entry/gif-상세페이지">
-                <label style="margin-top: 10px;">목록용 썸네일 이미지 선택 (필수)</label>
-                <input type="file" id="thumbFile" accept="image/*">
-            </div>
-
-            <button type="submit" class="btn-submit" id="submitBtn">등록하기</button>
-            <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">수정 취소</button>
-        </form>
+        </div>
+        <!-- 실제 입력 포커스를 받기 위한 투명 입력창 (숫자 6자리 제한) -->
+        <input type="password" id="pinInput" maxlength="6" autofocus>
     </div>
 
-    <div class="admin-card">
-        <h2>등록된 작품 목록</h2>
-        <div class="item-list" id="itemList"></div>
+    <!-- 🛠️ 관리자 대시보드 메인 내용 -->
+    <div id="adminDashboard">
+        <div class="admin-wrap">
+            <div class="admin-card">
+                <h2 id="formTitle">작품 업로드</h2>
+                <form id="uploadForm">
+                    <input type="hidden" id="editId">
+                    <input type="hidden" id="removeConsultImageFlag" value="false">
+                    
+                    <div class="form-group">
+                        <label>작품 제목</label>
+                        <input type="text" id="title" placeholder="예: 네이버 쇼핑 라이브 배너" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>설명 텍스트 (줄바꿈 반영)</label>
+                        <textarea id="description" placeholder="작품 관련 설명을 입력해 주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>대카테고리</label>
+                        <select id="mainCat">
+                            <option value="WEB">WEB</option>
+                            <option value="PRINT">PRINT</option>
+                            <option value="OTHER">OTHER</option>
+                            <option value="PRICE">PRICE</option>
+                            <option value="CONTACT">CONTACT</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>소카테고리 (WEB 선택 시)</label>
+                        <select id="subCat">
+                            <option value="BANNER">BANNER</option>
+                            <option value="DETAIL">DETAIL</option>
+                            <option value="PHOTO">PHOTO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>상담 내역 캡처 이미지 선택 (선택 사항)</label>
+                        <div class="file-input-wrap">
+                            <input type="file" id="consultFile" accept="image/*">
+                            <button type="button" class="btn-file-clear" onclick="clearConsultFile()">삭제</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>메인 시안 등록 방식 선택</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="viewType" value="file" checked onclick="toggleType('file')"> 이미지 파일 직접 업로드
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewType" value="tistory" onclick="toggleType('tistory')"> 티스토리 상세 링크 입력
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="fileInputArea">
+                        <label>실제 메인 배너/시안 이미지 선택</label>
+                        <input type="file" id="bannerFile" accept="image/*">
+                    </div>
+
+                    <div class="form-group" id="tistoryInputArea" style="display: none;">
+                        <label>티스토리 상세페이지 링크 (URL)</label>
+                        <input type="text" id="detailUrl" placeholder="https://brudi.tistory.com/entry/gif-상세페이지">
+                        <label style="margin-top: 10px;">목록용 썸네일 이미지 선택 (필수)</label>
+                        <input type="file" id="thumbFile" accept="image/*">
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">등록하기</button>
+                    <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">수정 취소</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>등록된 작품 목록</h2>
+                <div class="item-list" id="itemList"></div>
+            </div>
+        </div>
     </div>
-</div>
 
 <script>
+    // 🔑 [중요] 관리자 비밀번호 6자리 설정 (원하시는 숫자로 변경 가능합니다!)
+    const ADMIN_PIN = "123456"; 
+
+    const pinInput = document.getElementById('pinInput');
+    const pinDots = document.getElementById('pinDots');
+    const lockScreen = document.getElementById('lockScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const dots = pinDots.querySelectorAll('.pin-dot');
+
+    // 화면 아무 곳이나 누르면 항상 비밀번호 입력창에 포커스 유지
+    window.addEventListener('click', () => {
+        pinInput.focus();
+    });
+
+    // 비밀번호 입력 감지 및 인터랙션
+    pinInput.addEventListener('input', (e) => {
+        const val = pinInput.value;
+        
+        // 동그라미 채우기 상태 업데이트
+        dots.forEach((dot, index) => {
+            if (index < val.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+            }
+        });
+
+        // 6자리가 모두 채워졌을 때 검증
+        if (val.length === 6) {
+            if (val === ADMIN_PIN) {
+                // 성공 시: 잠금 화면 부드럽게 페이드 아웃 후 대시보드 오픈
+                lockScreen.style.opacity = '0';
+                lockScreen.style.visibility = 'hidden';
+                adminDashboard.classList.add('unlocked');
+                document.body.style.background = '#f5f5f7'; // 관리자 창 배경은 깔끔한 라이트톤으로 전환
+            } else {
+                // 실패 시: 흔들림 효과 후 입력창 초기화
+                pinDots.classList.add('shake');
+                setTimeout(() => {
+                    pinDots.classList.remove('shake');
+                    pinInput.value = '';
+                    dots.forEach(dot => dot.classList.remove('filled'));
+                }, 400);
+            }
+        }
+    });
+
+    // 기존 어드민 기능 스크립트
     const uploadForm = document.getElementById('uploadForm');
     const formTitle = document.getElementById('formTitle');
     const submitBtn = document.getElementById('submitBtn');
@@ -147,10 +337,9 @@
         }
     }
 
-    // 💡 상담 내역 파일 초기화(삭제) 함수
     function clearConsultFile() {
         consultFileInput.value = '';
-        removeConsultImageFlag.value = 'true'; // 수정 시 기존 이미지도 지우도록 플래그 설정
+        removeConsultImageFlag.value = 'true';
         alert('상담 내역 캡처 이미지가 비워졌습니다. ✨');
     }
 
@@ -224,7 +413,6 @@
                     items[targetIndex].viewType = viewType;
                     items[targetIndex].detailUrl = detailUrl;
 
-                    // 상담 이미지 수정/삭제 로직
                     if (removeConsultImageFlag.value === 'true') {
                         items[targetIndex].consultImage = '';
                     } else if (consultImgResult) {
@@ -325,7 +513,7 @@
         descInput.value = '';
         mainCatInput.value = 'WEB';
         subCatInput.value = 'BANNER';
-        detailUrlInput.value = '';
+        detailUrlInput.value = 'https://';
         document.querySelector('input[name="viewType"][value="file"]').checked = true;
         toggleType('file');
 
