@@ -284,8 +284,46 @@
       .banner-title { font-size: 1.8rem; }
       .banner-content { flex-direction: column; align-items: flex-start; gap: 15px; }
     }
+   .top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto 30px auto;
+  padding: 0 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.top-nav a {
+  color: #FFFDF9;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.top-nav a:hover {
+  opacity: 1;
+}
+
+.nav-right {
+  display: flex;
+  gap: 30px;
+}
   </style></div>
-<div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1"><main class="hero">
+<div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1">
+   <main class="hero">
+      <!-- 🍷 상단 이동 탭 (네비게이션) -->
+  <nav class="top-nav">
+    <a href="index.html" class="nav-item">CONCEPT / A: CHERRY RED</a>
+    <div class="nav-right">
+      <a href="index.html">HOME</a>
+      <a href="page1.html">WORKS</a>
+      <a href="admin.html">ADMIN</a>
+    </div>
+  </nav>
     <p class="hero-subtitle">Digital &amp; Visual Designer</p>
 
     <div class="marquee-container">
