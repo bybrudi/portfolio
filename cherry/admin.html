@@ -185,54 +185,94 @@
     </div>
 
 <script>
-    
-// 🔑 GitHub 기본 정보만 남기고 토큰은 코드에서 제거합니다.
-const GITHUB_USERNAME = "본인_깃허브_아이디"; 
-const REPO_NAME = "본인_저장소_이름"; 
-const FILE_PATH = "data.json";
+    // 🔑 GitHub 기본 정보 설정
+    const GITHUB_USERNAME = "bybrudi"; 
+    const REPO_NAME = "portfolio-admin-dataupload"; 
+    const FILE_PATH = "data.json";
+    const ADMIN_PIN = "202610"; 
 
-// 토큰을 세션에서 가져오거나, 없으면 팝업창으로 안전하게 입력받는 함수
-function getGithubToken() {
-    let token = sessionStorage.getItem('gh_token');
-    if (!token) {
-        token = prompt("🔒 GitHub 개인 액세스 토큰(ghp_...)을 입력해 주세요:");
-        if (token && token.trim().startsWith('ghp_')) {
-            sessionStorage.setItem('gh_token', token.trim());
-        } else {
-            alert("올바른 토큰을 입력하지 않으면 저장/수정이 불가능합니다.");
-            return null;
-        }
-    }
-    return token;
-}
+    const pinInput = document.getElementById('pinInput');
+    const pinDots = document.getElementById('pinDots');
+    const lockScreen = document.getElementById('lockScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const dots = pinDots.querySelectorAll('.pin-dot');
 
-// 🌐 GitHub API 호출 시 토큰 가져와서 헤더에 적용
-async function fetchFromGithub() {
-    const token = getGithubToken();
-    if (!token) return [];
+    let currentSha = ""; 
 
-    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-    try {
-        const res = await fetch(url, {
-            headers: { Authorization: `token ${token}` }
+    // 화면 클릭 시 입력 포커스 유지
+    window.addEventListener('click', () => { pinInput.focus(); });
+
+    // 🔒 6자리 비밀번호 입력 및 잠금 해제 인터랙션 로직
+    pinInput.addEventListener('input', (e) => {
+        const val = pinInput.value;
+        dots.forEach((dot, index) => {
+            if (index < val.length) dot.classList.add('filled');
+            else dot.classList.remove('filled');
         });
-        if (res.ok) {
-            const data = await res.json();
-            currentSha = data.sha;
-            const content = decodeURIComponent(escape(atob(data.content)));
-            const items = JSON.parse(content || '[]');
-            renderAdminList(items);
-            return items;
+
+        if (val.length === 6) {
+            if (val === ADMIN_PIN) {
+                lockScreen.style.opacity = '0';
+                lockScreen.style.visibility = 'hidden';
+                adminDashboard.classList.add('unlocked');
+                document.body.style.background = '#f5f5f7';
+                fetchFromGithub(); // 잠금 해제 시 깃허브 데이터 로드
+            } else {
+                pinDots.classList.add('shake');
+                setTimeout(() => {
+                    pinDots.classList.remove('shake');
+                    pinInput.value = '';
+                    dots.forEach(dot => dot.classList.remove('filled'));
+                }, 400);
+            }
         }
-        return [];
-    } catch (err) {
-        console.error(err);
-        return [];
+    });
+
+    // 🔑 토큰 입력 관리 함수
+    function getGithubToken() {
+        let token = sessionStorage.getItem('gh_token');
+        if (!token) {
+            token = prompt("🔒 개인 토큰(ghp_...)을 입력해 주세요:");
+            if (token && token.trim().startsWith('ghp_')) {
+                sessionStorage.setItem('gh_token', token.trim());
+            } else {
+                alert("올바른 토큰을 입력하지 않으면 저장/수정이 불가능합니다.");
+                return null;
+            }
+        }
+        return token;
     }
-}
+
+    // 🌐 GitHub API: data.json 불러오기
+    async function fetchFromGithub() {
+        const token = getGithubToken();
+        if (!token) return [];
+
+        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+        try {
+            const res = await fetch(url, {
+                headers: { Authorization: `token ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                currentSha = data.sha;
+                const content = decodeURIComponent(escape(atob(data.content)));
+                const items = JSON.parse(content || '[]');
+                renderAdminList(items);
+                return items;
+            }
+            return [];
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
 
     // 🌐 GitHub API: data.json 저장하기
     async function saveToGithub(items) {
+        const token = getGithubToken();
+        if (!token) return;
+
         const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
         const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(items, null, 2))));
         
@@ -246,7 +286,7 @@ async function fetchFromGithub() {
             const res = await fetch(url, {
                 method: "PUT",
                 headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
+                    Authorization: `token ${token}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(bodyData)
