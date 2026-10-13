@@ -2,127 +2,191 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BYBRUDI - Admin</title>
+    <title>BY BRUDI - Admin Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; min-height: 100vh; }
-
-        /* 🍷 체리레드 락스크린 (잠금 화면) 디자인 */
-        .lock-screen { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: #8B0017; z-index: 9999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            color: #fff; transition: opacity 0.35s ease-in-out; 
-        }
-        .lock-screen.is-hidden { opacity: 0; pointer-events: none; }
         
-        .lock-home-link { 
-            font-size: 11px; font-weight: 700; color: #fff; 
-            text-decoration: none; text-transform: uppercase; letter-spacing: 1.5px; 
-            margin-bottom: 40px; opacity: 0.8; transition: opacity 0.2s; 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #7A0C1E; 
+            color: #FFFDF9; 
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding: 40px 20px; 
+            overflow-x: hidden;
         }
-        .lock-home-link:hover { opacity: 1; }
 
-        .lock-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .lock-icon { font-size: 32px; margin-bottom: 10px; }
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #7A0C1E;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
 
-        /* 6칸 비밀번호 박스 */
-        .pin-box { display: flex; gap: 12px; }
-        .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background 0.2s; }
-        .pin-dot.active { background: #fff; }
-        .pin-input { position: absolute; opacity: 0; pointer-events: none; }
+        .lock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: slowAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-        /* 🛠️ 업로드 대시보드 (흰색 바탕 컨셉) */
-        .admin-container { width: 100%; max-width: 720px; display: none; flex-direction: column; gap: 30px; }
-        .admin-container.active { display: flex; }
+        @keyframes slowAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
 
-        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #8B0017; padding-bottom: 16px; }
-        .admin-header h1 { font-size: 16px; font-weight: 700; color: #8B0017; letter-spacing: 1px; }
-        .admin-header a { font-size: 12px; font-weight: 600; color: #111; text-decoration: none; }
+        .home-link {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: rgba(255, 253, 249, 0.7);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.2s ease;
+            margin-bottom: 6px;
+        }
 
-        .admin-form-box { background: #f9f9fb; padding: 30px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 13px; font-weight: 700; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: #8B0017; }
+        .home-link:hover { color: #FFFDF9; }
+        .lock-icon { font-size: 15px; line-height: 1; letter-spacing: normal; }
 
-        .upload-submit-btn { padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; }
-        .upload-submit-btn:hover { background: #6b0011; }
+        .pin-dots { display: flex; gap: 16px; align-items: center; }
+        .pin-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 253, 249, 0.4);
+            background: transparent;
+            transition: all 0.25s ease;
+        }
 
-        /* 등록된 작품 목록 스타일 */
-        .item-list-box { background: #fafafa; padding: 24px; border-radius: 12px; border: 1px solid #eee; }
-        .item-list-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #111; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 10px 14px; background: #fff; border-radius: 6px; border: 1px solid #eee; margin-bottom: 8px; }
-        .btn-del { background: none; border: none; color: #ff4d4d; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .pin-dot.filled {
+            background: #900f24;
+            border-color: #900f24;
+            transform: scale(1.1);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .pin-dots.shake { animation: shake 0.4s ease-in-out; }
+
+        #pinInput { position: absolute; opacity: 0; pointer-events: none; }
+
+        #adminDashboard {
+            width: 100%;
+            max-width: 650px;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.8s ease;
+        }
+
+        #adminDashboard.unlocked { display: block; opacity: 1; }
+
+        .admin-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); color: #1d1d1f; }
+        h2 { font-size: 20px; margin-bottom: 24px; color: #1d1d1f; text-align: center; font-weight: 600; }
+        .form-group { margin-bottom: 20px; }
+        label { font-size: 13px; font-weight: 600; color: #6e6e73; display: block; margin-bottom: 8px; }
+        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; background: #fff; font-family: inherit; color: #1d1d1f; }
+        
+        .btn-submit { width: 100%; padding: 14px; background: #000; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn-cancel { width: 100%; padding: 10px; background: #888; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; display: none; }
+        
+        .item-list { display: flex; flex-direction: column; gap: 12px; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px 16px; border-radius: 8px; border: 1px solid #eee; }
+        .item-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .item-info img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+        .item-details { display: flex; flex-direction: column; overflow: hidden; }
+        .item-details a { font-size: 13px; color: #0071e3; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
+        .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-edit { background: #0071e3; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-del { background: #ff3b30; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
-<body>
+<body onclick="document.getElementById('pinInput').focus()">
 
-    <!-- 🍷 체리레드 잠금 화면 (클릭 히어 홈 링크 + 자물쇠 이모지 + 6칸 비밀번호) -->
-    <div class="lock-screen" id="lockScreen">
-        <a href="/" class="lock-home-link">&larr; CLICK HERE (HOME)</a>
-        <div class="lock-content">
+    <div id="lockScreen">
+        <div class="lock-container">
+            <a href="/" class="home-link">CLICK HERE</a>
             <div class="lock-icon">🔒</div>
-            <p style="font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">ADMIN ACCESS PASSWORD</p>
-            <div class="pin-box">
-                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dots" id="pinDots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
             </div>
-            <input type="password" id="pinInput" class="pin-input" maxlength="6" autofocus>
+        </div>
+        <input type="password" id="pinInput" maxlength="6" autofocus>
+    </div>
+
+    <div id="adminDashboard">
+        <div class="admin-wrap">
+            <div class="admin-card">
+                <h2 id="formTitle">작품 업로드 (GitHub 연동형)</h2>
+                <form id="uploadForm">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-group">
+                        <label>대카테고리</label>
+                        <select id="mainCat">
+                            <option value="WEB">WEB</option>
+                            <option value="PRINT">PRINT</option>
+                            <option value="OTHER">OTHER</option>
+                            <option value="PRICE">PRICE</option>
+                            <option value="CONTACT">CONTACT</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>소카테고리 (WEB 선택 시)</label>
+                        <select id="subCat">
+                            <option value="BANNER">BANNER</option>
+                            <option value="DETAIL">DETAIL</option>
+                            <option value="PHOTO">PHOTO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>시안 이미지 주소 링크 입력 (티스토리 이미지 원본 URL)</label>
+                        <input type="text" id="imageUrl" placeholder="https://img1.daumcdn.net/..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>업로드 내용 (티스토리 포스팅 상세 링크 URL)</label>
+                        <input type="text" id="tistoryUrl" placeholder="https://bybrudi.tistory.com/entry/..." required>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">저장하기</button>
+                    <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">수정 취소</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h2>등록된 작품 목록</h2>
+                <div class="item-list" id="itemList">동기화 중...</div>
+            </div>
         </div>
     </div>
 
-    <!-- 🛠️ 업로드 대시보드 (화이트 컨셉) -->
-    <div class="admin-container" id="adminDashboard">
-        <header class="admin-header">
-            <h1>BYBRUDI ADMIN SYSTEM</h1>
-            <a href="works.html" target="_blank">works 페이지 확인 &rarr;</a>
-        </header>
+<script>
 
-        <form class="admin-form-box" id="uploadForm" onsubmit="handleSave(event)">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">NEW WORK UPLOAD</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">등록된 내용은 GitHub(cherry/data.json)에 실시간 동기화됩니다.</p>
 
-            <div class="form-group">
-                <label>대카테고리</label>
-                <select id="mainCat" onchange="updateSubCategories()">
-                    <option value="DEVELOP">DEVELOP</option>
-                    <option value="WEB">WEB</option>
-                    <option value="PRINT">PRINT</option>
-                    <option value="OTHER">OTHER</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>소카테고리</label>
-                <select id="subCat">
-                    <!-- 대카테고리에 따라 동적 변경됨 -->
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>이미지 URL (시안 링크)</label>
-                <input type="text" id="imageUrl" placeholder="이미지 주소를 입력해주세요." required>
-            </div>
-
-            <div class="form-group">
-                <label>티스토리 상세페이지 URL</label>
-                <input type="text" id="tistoryUrl" placeholder="티스토리 링크를 입력해주세요." required>
-            </div>
-
-            <button type="submit" class="upload-submit-btn">GitHub에 작품 등록하기</button>
-        </form>
-
-        <div class="item-list-box">
-            <h3>📋 GitHub 동기화된 작품 목록</h3>
-            <div id="itemList" style="max-height: 250px; overflow-y: auto;">
-                <div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">데이터를 불러오는 중...</div>
-            </div>
-        </div>
-    </div>
-
-    <script>
         // 🔑 깃허브 연동 설정
         const GITHUB_USERNAME = "bybrudi";
         const REPO_NAME = "portfolio";
