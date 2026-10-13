@@ -2,424 +2,278 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BY BRUDI - Admin Management</title>
+    <title>BYBRUDI Admin</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #111; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: #7A0C1E; 
-            color: #FFFDF9; 
-            min-height: 100vh;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            padding: 40px 20px; 
-            overflow-x: hidden;
-        }
-
-        #lockScreen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #7A0C1E;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-
-        .lock-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            opacity: 0;
-            transform: translateY(15px);
-            animation: slowAppear 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slowAppear {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .home-link {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            color: rgba(255, 253, 249, 0.7);
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: color 0.2s ease;
-            margin-bottom: 6px;
-        }
-
-        .home-link:hover { color: #FFFDF9; }
-        .lock-icon { font-size: 15px; line-height: 1; letter-spacing: normal; }
-
-        .pin-dots { display: flex; gap: 16px; align-items: center; }
-        .pin-dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(255, 253, 249, 0.4);
-            background: transparent;
-            transition: all 0.25s ease;
-        }
-
-        .pin-dot.filled {
-            background: #900f24;
-            border-color: #900f24;
-            transform: scale(1.1);
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
-        .pin-dots.shake { animation: shake 0.4s ease-in-out; }
-
-        #pinInput { position: absolute; opacity: 0; pointer-events: none; }
-
-        #adminDashboard {
-            width: 100%;
-            max-width: 650px;
-            opacity: 0;
-            display: none;
-            transition: opacity 0.8s ease;
-        }
-
-        #adminDashboard.unlocked { display: block; opacity: 1; }
-
-        .admin-card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); color: #1d1d1f; }
-        h2 { font-size: 20px; margin-bottom: 24px; color: #1d1d1f; text-align: center; font-weight: 600; }
-        .form-group { margin-bottom: 20px; }
-        label { font-size: 13px; font-weight: 600; color: #6e6e73; display: block; margin-bottom: 8px; }
-        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; background: #fff; font-family: inherit; color: #1d1d1f; }
+        .admin-card { background: #1c1c1e; width: 100%; max-width: 500px; padding: 30px; border-radius: 16px; border: 1px solid #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; text-align: center; color: #fff; letter-spacing: 1px; }
         
-        .btn-submit { width: 100%; padding: 14px; background: #000; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .btn-cancel { width: 100%; padding: 10px; background: #888; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; display: none; }
+        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 12px; font-weight: 600; color: #a1a1a6; }
+        input, select { width: 100%; padding: 12px; background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
+        input:focus, select:focus { border-color: #8B0017; }
         
-        .item-list { display: flex; flex-direction: column; gap: 12px; }
-        .item-row { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px 16px; border-radius: 8px; border: 1px solid #eee; }
-        .item-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        .item-info img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-        .item-details { display: flex; flex-direction: column; overflow: hidden; }
-        .item-details a { font-size: 13px; color: #0071e3; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
-        .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .btn-edit { background: #0071e3; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
-        .btn-del { background: #ff3b30; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-submit { width: 100%; padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        .btn-submit:hover { background: #a5001c; }
+
+        /* 잠금 화면 */
+        .lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; }
+        .pin-box { display: flex; gap: 10px; margin-top: 20px; }
+        .pin-dot { width: 12px; height: 12px; border-radius: 50%; background: #3a3a3c; }
+        .pin-dot.active { background: #8B0017; }
+        .pin-input { position: absolute; opacity: 0; pointer-events: none; }
+
+        /* 기존 등록 목록 */
+        .item-list { margin-top: 30px; border-top: 1px solid #2c2c2e; padding-top: 20px; max-height: 250px; overflow-y: auto; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #2c2c2e; border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
+        .btn-del { background: #ff3b30; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     </style>
 </head>
-<body onclick="document.getElementById('pinInput').focus()">
+<body>
 
-    <div id="lockScreen">
-        <div class="lock-container">
-            <a href="/" class="home-link">CLICK HERE</a>
-            <div class="lock-icon">🔒</div>
-            <div class="pin-dots" id="pinDots">
-                <div class="pin-dot"></div>
-                <div class="pin-dot"></div>
-                <div class="pin-dot"></div>
-                <div class="pin-dot"></div>
-                <div class="pin-dot"></div>
-                <div class="pin-dot"></div>
-            </div>
+    <!-- 🔒 핀번호 잠금 화면 -->
+    <div class="lock-screen" id="lockScreen">
+        <h2>ADMIN ACCESS</h2>
+        <p style="font-size: 12px; color: #a1a1a6;">6자리 PIN 번호를 입력하세요.</p>
+        <div class="pin-box">
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
         </div>
-        <input type="password" id="pinInput" maxlength="6" autofocus>
+        <input type="password" id="pinInput" class="pin-input" maxlength="6" autofocus>
     </div>
 
-    <div id="adminDashboard">
-        <div class="admin-wrap">
-            <div class="admin-card">
-                <h2 id="formTitle">작품 업로드 (GitHub 연동형)</h2>
-                <form id="uploadForm">
-                    <input type="hidden" id="editId">
-                    
-                    <div class="form-group">
-                        <label>대카테고리</label>
-                        <select id="mainCat">
-                            <option value="WEB">WEB</option>
-                            <option value="PRINT">PRINT</option>
-                            <option value="OTHER">OTHER</option>
-                            <option value="PRICE">PRICE</option>
-                            <option value="CONTACT">CONTACT</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>소카테고리 (WEB 선택 시)</label>
-                        <select id="subCat">
-                            <option value="BANNER">BANNER</option>
-                            <option value="DETAIL">DETAIL</option>
-                            <option value="PHOTO">PHOTO</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>시안 이미지 주소 링크 입력 (티스토리 이미지 원본 URL)</label>
-                        <input type="text" id="imageUrl" placeholder="https://img1.daumcdn.net/..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>업로드 내용 (티스토리 포스팅 상세 링크 URL)</label>
-                        <input type="text" id="tistoryUrl" placeholder="https://bybrudi.tistory.com/entry/..." required>
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="submitBtn">저장하기</button>
-                    <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">수정 취소</button>
-                </form>
-            </div>
-
-            <div class="admin-card">
-                <h2>등록된 작품 목록</h2>
-                <div class="item-list" id="itemList">동기화 중...</div>
-            </div>
-        </div>
-    </div>
-
-<script>
-    // 🔑 GitHub 기본 정보 설정
-    const GITHUB_USERNAME = "bybrudi"; 
-    const REPO_NAME = "portfolio"; 
-    const FILE_PATH = "cherry/data.json";
-    const ADMIN_PIN = "202610"; 
-
-    const pinInput = document.getElementById('pinInput');
-    const pinDots = document.getElementById('pinDots');
-    const lockScreen = document.getElementById('lockScreen');
-    const adminDashboard = document.getElementById('adminDashboard');
-    const dots = pinDots.querySelectorAll('.pin-dot');
-
-    let currentSha = ""; 
-
-    // 화면 클릭 시 입력 포커스 유지
-    window.addEventListener('click', () => { pinInput.focus(); });
-
-    // 🔒 6자리 비밀번호 입력 및 잠금 해제 인터랙션 로직
-    pinInput.addEventListener('input', (e) => {
-        const val = pinInput.value;
-        dots.forEach((dot, index) => {
-            if (index < val.length) dot.classList.add('filled');
-            else dot.classList.remove('filled');
-        });
-
-        if (val.length === 6) {
-            if (val === ADMIN_PIN) {
-                lockScreen.style.opacity = '0';
-                lockScreen.style.visibility = 'hidden';
-                adminDashboard.classList.add('unlocked');
-                document.body.style.background = '#f5f5f7';
-                fetchFromGithub(); // 잠금 해제 시 깃허브 데이터 로드
-            } else {
-                pinDots.classList.add('shake');
-                setTimeout(() => {
-                    pinDots.classList.remove('shake');
-                    pinInput.value = '';
-                    dots.forEach(dot => dot.classList.remove('filled'));
-                }, 400);
-            }
-        }
-    });
-
-    // 🔑 토큰 입력 관리 함수
-    function getGithubToken() {
-        let token = sessionStorage.getItem('gh_token');
-        if (!token) {
-            token = prompt("🔒 개인 토큰(ghp_...)을 입력해 주세요:");
-            if (token && token.trim().startsWith('ghp_')) {
-                sessionStorage.setItem('gh_token', token.trim());
-            } else {
-                alert("올바른 토큰을 입력하지 않으면 저장/수정이 불가능합니다.");
-                return null;
-            }
-        }
-        return token;
-    }
-
-    // 🌐 GitHub API: data.json 불러오기
-    async function fetchFromGithub() {
-        const token = getGithubToken();
-        if (!token) return [];
-
-        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-        try {
-            const res = await fetch(url, {
-                headers: { Authorization: `token ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                currentSha = data.sha;
-                const content = decodeURIComponent(escape(atob(data.content)));
-                const items = JSON.parse(content || '[]');
-                renderAdminList(items);
-                return items;
-            }
-            return [];
-        } catch (err) {
-            console.error(err);
-            return [];
-        }
-    }
-
-    // 🌐 GitHub API: data.json 저장하기
-    async function saveToGithub(items) {
-        const token = getGithubToken();
-        if (!token) return;
-
-        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-        const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(items, null, 2))));
+    <!-- 🛠️ 어드민 대시보드 -->
+    <div class="admin-card" id="adminDashboard" style="display: none;">
+        <h2>작품 업로드</h2>
         
-        const bodyData = {
-            message: "Update portfolio data via Admin",
-            content: contentEncoded,
-            sha: currentSha
+        <form id="uploadForm" onsubmit="handleSave(event)">
+            <div class="form-group">
+                <label>대카테고리</label>
+                <select id="mainCat" onchange="updateSubCategories()">
+                    <option value="DEVELOP">DEVELOP</option>
+                    <option value="WEB">WEB</option>
+                    <option value="PRINT">PRINT</option>
+                    <option value="OTHER">OTHER</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>소카테고리</label>
+                <select id="subCat">
+                    <!-- 자바스크립트로 동적 생성됨 -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>이미지 URL (시안 링크)</label>
+                <input type="text" id="imageUrl" placeholder="https://..." required>
+            </div>
+
+            <div class="form-group">
+                <label>티스토리 상세페이지 URL</label>
+                <input type="text" id="tistoryUrl" placeholder="https://brudi.tistory.com/..." required>
+            </div>
+
+            <button type="submit" class="btn-submit">GitHub 동기화 저장</button>
+        </form>
+
+        <h2 style="margin-top: 30px; text-align: left;">등록된 작품 목록</h2>
+        <div class="item-list" id="itemList">동기화 중...</div>
+    </div>
+
+    <script>
+        // 🔑 GitHub 기본 정보 설정
+        const GITHUB_USERNAME = "bybrudi";
+        const REPO_NAME = "portfolio";
+        const FILE_PATH = "data.json";
+        const ADMIN_PIN = "202610";
+
+        // 📌 works.html과 동일한 소카테고리 데이터 구조
+        const subCategoryMap = {
+            DEVELOP: ['DEVELOP', 'CAFE24'],
+            WEB: ['BANNER', 'DETAIL', 'CARD', 'AD+'],
+            PRINT: ['EDITORIAL', 'PACKAGING'],
+            OTHER: ['SPACE&3D', 'PHOTO', 'EDIT', 'video']
         };
 
-        try {
-            const res = await fetch(url, {
-                method: "PUT",
-                headers: {
-                    Authorization: `token ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(bodyData)
+        const pinInput = document.getElementById('pinInput');
+        const pinDots = document.querySelectorAll('.pin-dot');
+        const lockScreen = document.getElementById('lockScreen');
+        const adminDashboard = document.getElementById('adminDashboard');
+
+        let currentSha = "";
+        let portfolioData = [];
+
+        // 화면 클릭 시 PIN 입력창에 포커스 유지
+        window.addEventListener('click', () => { if(lockScreen.style.display !== 'none') pinInput.focus(); });
+
+        // 🔓 PIN 번호 검증
+        pinInput.addEventListener('input', (e) => {
+            const val = pinInput.value;
+            pinDots.forEach((dot, index) => {
+                if (index < val.length) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
 
-            if (res.ok) {
-                const resData = await res.json();
-                currentSha = resData.content.sha;
-                alert('GitHub 서버에 성공적으로 동기화 저장되었습니다! 🎉');
-                renderAdminList(items);
-            } else {
-                alert('저장 실패: GitHub 토큰 권한을 확인하세요.');
+            if (val.length === 6) {
+                if (val === ADMIN_PIN) {
+                    lockScreen.style.display = 'none';
+                    adminDashboard.style.display = 'block';
+                    updateSubCategories(); // 카테고리 초기 세팅
+                    initGitHubData();
+                } else {
+                    alert('PIN 번호가 올바르지 않습니다.');
+                    pinInput.value = '';
+                    pinDots.forEach(dot => dot.classList.remove('active'));
+                }
             }
-        } catch (err) {
-            console.error(err);
-            alert('네트워크 오류가 발생했습니다.');
+        });
+
+        // 🔄 대카테고리에 따라 소카테고리 드롭다운 변경
+        function updateSubCategories() {
+            const mainCat = document.getElementById('mainCat').value;
+            const subSelect = document.getElementById('subCat');
+            subSelect.innerHTML = '';
+
+            const subs = subCategoryMap[mainCat] || [];
+            subs.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.innerText = sub;
+                subSelect.appendChild(opt);
+            });
         }
-    }
 
-    const uploadForm = document.getElementById('uploadForm');
-    const formTitle = document.getElementById('formTitle');
-    const submitBtn = document.getElementById('submitBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const editIdInput = document.getElementById('editId');
-    const mainCatInput = document.getElementById('mainCat');
-    const subCatInput = document.getElementById('subCat');
-    const imageUrlInput = document.getElementById('imageUrl');
-    const tistoryUrlInput = document.getElementById('tistoryUrl');
-
-    uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const mainCat = mainCatInput.value;
-        const subCat = subCatInput.value;
-        const imageUrl = imageUrlInput.value.trim();
-        const tistoryUrl = tistoryUrlInput.value.trim();
-        const editId = editIdInput.value;
-
-        submitBtn.innerText = "저장 중...";
-        submitBtn.disabled = true;
-
-        let items = await fetchFromGithub();
-
-        if (editId) {
-            const targetIndex = items.findIndex(item => Number(item.id) === Number(editId));
-            if (targetIndex !== -1) {
-                items[targetIndex].mainCat = mainCat;
-                items[targetIndex].subCat = subCat;
-                items[targetIndex].imageUrl = imageUrl;
-                items[targetIndex].tistoryUrl = tistoryUrl;
+        // 🔑 토큰 관리
+        function getGithubToken() {
+            let token = sessionStorage.getItem('gh_token');
+            if (!token) {
+                token = prompt("GitHub Personal Access Token을 입력해 주세요:");
+                if (token) sessionStorage.setItem('gh_token', token.trim());
             }
-        } else {
+            return token;
+        }
+
+        // 🌐 GitHub data.json 불러오기
+        async function fetchFromGithub() {
+            const token = getGithubToken();
+            if (!token) return;
+
+            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    currentSha = data.sha;
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    portfolioData = JSON.parse(content || '[]');
+                    renderList();
+                } else {
+                    alert('GitHub 데이터를 불러오지 못했습니다. 토큰 권한을 확인하세요.');
+                    sessionStorage.removeItem('gh_token');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 💾 GitHub data.json 저장하기
+        async function saveToGithub() {
+            const token = getGithubToken();
+            if (!token) return;
+
+            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+            const jsonString = JSON.stringify(portfolioData, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+            const payload = {
+                message: "Update portfolio data via Admin",
+                content: encodedContent,
+                sha: currentSha
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const resData = await res.json();
+                    currentSha = resData.content.sha;
+                    alert('GitHub 서버에 성공적으로 동기화 저장되었습니다! 🎉');
+                    renderList();
+                } else {
+                    alert('저장 실패: GitHub 토큰 권한을 확인하세요.');
+                    sessionStorage.removeItem('gh_token');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('네트워크 오류가 발생했습니다.');
+            }
+        }
+
+        function initGitHubData() {
+            fetchFromGithub();
+        }
+
+        // ➕ 신규 데이터 추가
+        function handleSave(e) {
+            e.preventDefault();
             const newItem = {
                 id: Date.now(),
-                mainCat: mainCat,
-                subCat: subCat,
-                imageUrl: imageUrl,
-                tistoryUrl: tistoryUrl
+                mainCat: document.getElementById('mainCat').value,
+                subCat: document.getElementById('subCat').value,
+                imageUrl: document.getElementById('imageUrl').value,
+                tistoryUrl: document.getElementById('tistoryUrl').value
             };
-            items.unshift(newItem);
+
+            portfolioData.unshift(newItem); // 최신 항목 맨 앞으로
+            saveToGithub();
+
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('tistoryUrl').value = '';
         }
 
-        await saveToGithub(items);
-        resetForm();
-        submitBtn.disabled = false;
-    });
-
-    function renderAdminList(items) {
-        const itemList = document.getElementById('itemList');
-        itemList.innerHTML = '';
-
-        if (!items || items.length === 0) {
-            itemList.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; padding:20px;">등록된 작품이 없습니다.</div>';
-            return;
+        // 🗑️ 데이터 삭제
+        function deleteItem(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                portfolioData = portfolioData.filter(item => item.id !== id);
+                saveToGithub();
+            }
         }
 
-        items.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.innerHTML = `
-                <div class="item-info">
-                    <img src="${item.imageUrl}" alt="미리보기" onerror="this.src='https://via.placeholder.com/40'">
-                    <div class="item-details">
-                        <span style="font-size:13px; font-weight:600; color:#1d1d1f;">[${item.mainCat}] ${item.subCat}</span>
-                        <a href="${item.tistoryUrl}" target="_blank">${item.tistoryUrl}</a>
+        // 📋 목록 렌더링
+        function renderList() {
+            const listArea = document.getElementById('itemList');
+            listArea.innerHTML = '';
+
+            if (portfolioData.length === 0) {
+                listArea.innerHTML = '<div style="color:#777; font-size:12px;">등록된 데이터가 없습니다.</div>';
+                return;
+            }
+
+            portfolioData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>[${item.mainCat}] ${item.subCat}</strong>
                     </div>
-                </div>
-                <div class="item-actions">
-                    <button class="btn-edit" onclick="editItem(${item.id})">수정</button>
                     <button class="btn-del" onclick="deleteItem(${item.id})">삭제</button>
-                </div>
-            `;
-            itemList.appendChild(row);
-        });
-    }
-
-    async function editItem(id) {
-        const items = await fetchFromGithub();
-        const item = items.find(i => Number(i.id) === Number(id));
-
-        if (item) {
-            editIdInput.value = item.id;
-            mainCatInput.value = item.mainCat;
-            subCatInput.value = item.subCat;
-            imageUrlInput.value = item.imageUrl;
-            tistoryUrlInput.value = item.tistoryUrl;
-
-            formTitle.innerText = '작품 정보 수정';
-            submitBtn.innerText = '수정 완료';
-            cancelBtn.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+                `;
+                listArea.appendChild(row);
+            });
         }
-    }
-
-    function resetForm() {
-        editIdInput.value = '';
-        mainCatInput.value = 'WEB';
-        subCatInput.value = 'BANNER';
-        imageUrlInput.value = '';
-        tistoryUrlInput.value = '';
-
-        formTitle.innerText = '작품 업로드';
-        submitBtn.innerText = '저장하기';
-        cancelBtn.style.display = 'none';
-    }
-
-    async function deleteItem(id) {
-        if (confirm('이 작품을 삭제하시겠습니까?')) {
-            let items = await fetchFromGithub();
-            items = items.filter(item => Number(item.id) !== Number(id));
-            await saveToGithub(items);
-        }
-    }
-</script>
+    </script>
 </body>
 </html>
