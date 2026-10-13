@@ -64,7 +64,7 @@
         }
         .sub-btn.active, .sub-btn:hover { background: #222222; color: #fff; }
 
-     /* 📍 메인 콘텐츠 뷰어 영역 */
+      /* 📍 메인 콘텐츠 뷰어 영역 */
         .content-section { 
             width: 100%; 
             max-width: 1080px; 
@@ -306,6 +306,7 @@
         let currentMain = 'DEVELOP';
         let currentSub = 'ALL';
         let cartItems = [];
+        let portfolioItems = []; // 🌐 깃허브 data.json 데이터를 담을 전역 변수
 
         function switchMainTab(mainCat, btn) {
             currentMain = mainCat;
@@ -361,16 +362,29 @@
             }
         }
 
-        /* 🔄 새 어드민 구조에 맞춘 데이터 연동 함수 */
+        /* 🌐 깃허브 data.json 비동기 연동 함수 */
+        async function fetchPortfolioData() {
+            try {
+                const res = await fetch('data.json'); 
+                if (res.ok) {
+                    const rawItems = await res.json();
+                    portfolioItems = rawItems.map(item => ({
+                        id: item.id,
+                        mainCat: item.mainCat || 'WEB',
+                        subCat: item.subCat || 'BANNER',
+                        image: item.imageUrl || '',      // 어드민 시안 이미지 주소
+                        detailUrl: item.tistoryUrl || '' // 어드민 티스토리 상세 링크
+                    }));
+                }
+            } catch (err) {
+                console.error("데이터 로드 실패:", err);
+            }
+            // 데이터를 불러온 후 첫 탭 렌더링 실행
+            switchMainTab('DEVELOP', document.querySelector('.main-btn'));
+        }
+
         function getSafePortfolio() {
-            const rawItems = JSON.parse(localStorage.getItem('bybrudi_portfolio_v2') || '[]');
-            return rawItems.map(item => ({
-                id: item.id,
-                mainCat: item.mainCat || 'WEB',
-                subCat: item.subCat || 'BANNER',
-                image: item.imageUrl || '',      // 어드민 시안 이미지 주소
-                detailUrl: item.tistoryUrl || '' // 어드민 티스토리 상세 링크
-            }));
+            return portfolioItems;
         }
 
         /* 갤러리 렌더링 (WEB, PRINT, OTHER) */
@@ -540,8 +554,8 @@
             if (e.target.id === 'detailModal') closeModal();
         }
 
-        // 초기 실행
-        switchMainTab('DEVELOP', document.querySelector('.main-btn'));
+        // 페이지 로드 시 깃허브 데이터를 먼저 불러온 뒤 화면을 그립니다.
+        fetchPortfolioData();
     </script>
 </body>
 </html>
