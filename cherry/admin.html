@@ -3,53 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BYBRUDI Admin</title>
+    <title>BYBRUDI - Admin</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #111; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        
-        .admin-card { background: #1c1c1e; width: 100%; max-width: 500px; padding: 30px; border-radius: 16px; border: 1px solid #2c2c2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; text-align: center; color: #fff; letter-spacing: 1px; }
-        
-        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 12px; font-weight: 600; color: #a1a1a6; }
-        input, select { width: 100%; padding: 12px; background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
-        input:focus, select:focus { border-color: #8B0017; }
-        
-        .btn-submit { width: 100%; padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
-        .btn-submit:hover { background: #a5001c; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; min-height: 100vh; }
 
-        /* 잠금 화면 */
-        .lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; }
-        .pin-box { display: flex; gap: 10px; margin-top: 20px; }
-        .pin-dot { width: 12px; height: 12px; border-radius: 50%; background: #3a3a3c; }
-        .pin-dot.active { background: #8B0017; }
+        /* 🍷 체리레드 락스크린 (잠금 화면) 디자인 */
+        .lock-screen { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: #8B0017; z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            color: #fff; transition: opacity 0.35s ease-in-out; 
+        }
+        .lock-screen.is-hidden { opacity: 0; pointer-events: none; }
+        
+        .lock-home-link { 
+            font-size: 11px; font-weight: 700; color: #fff; 
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1.5px; 
+            margin-bottom: 40px; opacity: 0.8; transition: opacity 0.2s; 
+        }
+        .lock-home-link:hover { opacity: 1; }
+
+        .lock-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .lock-icon { font-size: 32px; margin-bottom: 10px; }
+
+        /* 6칸 비밀번호 박스 */
+        .pin-box { display: flex; gap: 12px; }
+        .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background 0.2s; }
+        .pin-dot.active { background: #fff; }
         .pin-input { position: absolute; opacity: 0; pointer-events: none; }
 
-        /* 기존 등록 목록 */
-        .item-list { margin-top: 30px; border-top: 1px solid #2c2c2e; padding-top: 20px; max-height: 250px; overflow-y: auto; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #2c2c2e; border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
-        .btn-del { background: #ff3b30; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        /* 🛠️ 업로드 대시보드 (흰색 바탕 컨셉) */
+        .admin-container { width: 100%; max-width: 720px; display: none; flex-direction: column; gap: 30px; }
+        .admin-container.active { display: flex; }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #8B0017; padding-bottom: 16px; }
+        .admin-header h1 { font-size: 16px; font-weight: 700; color: #8B0017; letter-spacing: 1px; }
+        .admin-header a { font-size: 12px; font-weight: 600; color: #111; text-decoration: none; }
+
+        .admin-form-box { background: #f9f9fb; padding: 30px; border-radius: 12px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; font-weight: 700; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #8B0017; }
+
+        .upload-submit-btn { padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+        .upload-submit-btn:hover { background: #6b0011; }
+
+        /* 등록된 작품 목록 스타일 */
+        .item-list-box { background: #fafafa; padding: 24px; border-radius: 12px; border: 1px solid #eee; }
+        .item-list-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #111; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 10px 14px; background: #fff; border-radius: 6px; border: 1px solid #eee; margin-bottom: 8px; }
+        .btn-del { background: none; border: none; color: #ff4d4d; cursor: pointer; font-weight: bold; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <!-- 🔒 핀번호 잠금 화면 -->
+    <!-- 🍷 체리레드 잠금 화면 (클릭 히어 홈 링크 + 자물쇠 이모지 + 6칸 비밀번호) -->
     <div class="lock-screen" id="lockScreen">
-        <h2>ADMIN ACCESS</h2>
-        <p style="font-size: 12px; color: #a1a1a6;">6자리 PIN 번호를 입력하세요.</p>
-        <div class="pin-box">
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        <a href="/" class="lock-home-link">&larr; CLICK HERE (HOME)</a>
+        <div class="lock-content">
+            <div class="lock-icon">🔒</div>
+            <p style="font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">ADMIN ACCESS PASSWORD</p>
+            <div class="pin-box">
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            </div>
+            <input type="password" id="pinInput" class="pin-input" maxlength="6" autofocus>
         </div>
-        <input type="password" id="pinInput" class="pin-input" maxlength="6" autofocus>
     </div>
 
-    <!-- 🛠️ 어드민 대시보드 -->
-    <div class="admin-card" id="adminDashboard" style="display: none;">
-        <h2>작품 업로드</h2>
-        
-        <form id="uploadForm" onsubmit="handleSave(event)">
+    <!-- 🛠️ 업로드 대시보드 (화이트 컨셉) -->
+    <div class="admin-container" id="adminDashboard">
+        <header class="admin-header">
+            <h1>BYBRUDI ADMIN SYSTEM</h1>
+            <a href="works.html" target="_blank">works 페이지 확인 &rarr;</a>
+        </header>
+
+        <form class="admin-form-box" id="uploadForm" onsubmit="handleSave(event)">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">NEW WORK UPLOAD</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">등록된 내용은 GitHub(cherry/data.json)에 실시간 동기화됩니다.</p>
+
             <div class="form-group">
                 <label>대카테고리</label>
                 <select id="mainCat" onchange="updateSubCategories()">
@@ -63,35 +97,39 @@
             <div class="form-group">
                 <label>소카테고리</label>
                 <select id="subCat">
-                    <!-- 자바스크립트로 동적 생성됨 -->
+                    <!-- 대카테고리에 따라 동적 변경됨 -->
                 </select>
             </div>
 
             <div class="form-group">
                 <label>이미지 URL (시안 링크)</label>
-                <input type="text" id="imageUrl" placeholder="https://..." required>
+                <input type="text" id="imageUrl" placeholder="이미지 주소를 입력해주세요." required>
             </div>
 
             <div class="form-group">
                 <label>티스토리 상세페이지 URL</label>
-                <input type="text" id="tistoryUrl" placeholder="https://brudi.tistory.com/..." required>
+                <input type="text" id="tistoryUrl" placeholder="티스토리 링크를 입력해주세요." required>
             </div>
 
-            <button type="submit" class="btn-submit">GitHub 동기화 저장</button>
+            <button type="submit" class="upload-submit-btn">GitHub에 작품 등록하기</button>
         </form>
 
-        <h2 style="margin-top: 30px; text-align: left;">등록된 작품 목록</h2>
-        <div class="item-list" id="itemList">동기화 중...</div>
+        <div class="item-list-box">
+            <h3>📋 GitHub 동기화된 작품 목록</h3>
+            <div id="itemList" style="max-height: 250px; overflow-y: auto;">
+                <div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">데이터를 불러오는 중...</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 🔑 GitHub 기본 정보 설정
+        // 🔑 깃허브 연동 설정
         const GITHUB_USERNAME = "bybrudi";
         const REPO_NAME = "portfolio";
-        const FILE_PATH = "data.json";
+        const FILE_PATH = "cherry/data.json"; // cherry 폴더 안의 data.json 경로 정렬
         const ADMIN_PIN = "202610";
 
-        // 📌 works.html과 동일한 소카테고리 데이터 구조
+        // 📌 works.html과 완벽히 일치하는 카테고리 맵핑
         const subCategoryMap = {
             DEVELOP: ['DEVELOP', 'CAFE24'],
             WEB: ['BANNER', 'DETAIL', 'CARD', 'AD+'],
@@ -99,40 +137,42 @@
             OTHER: ['SPACE&3D', 'PHOTO', 'EDIT', 'video']
         };
 
+        let currentSha = "";
+        let portfolioData = [];
+
         const pinInput = document.getElementById('pinInput');
         const pinDots = document.querySelectorAll('.pin-dot');
         const lockScreen = document.getElementById('lockScreen');
         const adminDashboard = document.getElementById('adminDashboard');
 
-        let currentSha = "";
-        let portfolioData = [];
+        // 화면 클릭 시 비밀번호 입력 포커스 유지
+        window.addEventListener('click', () => {
+            if(!lockScreen.classList.contains('is-hidden')) pinInput.focus();
+        });
 
-        // 화면 클릭 시 PIN 입력창에 포커스 유지
-        window.addEventListener('click', () => { if(lockScreen.style.display !== 'none') pinInput.focus(); });
-
-        // 🔓 PIN 번호 검증
+        // 🔓 6자리 비밀번호(202610) 검증 로직
         pinInput.addEventListener('input', (e) => {
             const val = pinInput.value;
-            pinDots.forEach((dot, index) => {
-                if (index < val.length) dot.classList.add('active');
+            pinDots.forEach((dot, idx) => {
+                if (idx < val.length) dot.classList.add('active');
                 else dot.classList.remove('active');
             });
 
             if (val.length === 6) {
                 if (val === ADMIN_PIN) {
-                    lockScreen.style.display = 'none';
-                    adminDashboard.style.display = 'block';
-                    updateSubCategories(); // 카테고리 초기 세팅
-                    initGitHubData();
+                    lockScreen.classList.add('is-hidden');
+                    adminDashboard.classList.add('active');
+                    updateSubCategories(); // 대카테고리 기본 소팅
+                    fetchFromGithub();     // 깃허브 데이터 로드
                 } else {
-                    alert('PIN 번호가 올바르지 않습니다.');
+                    alert('비밀번호가 올바르지 않습니다.');
                     pinInput.value = '';
                     pinDots.forEach(dot => dot.classList.remove('active'));
                 }
             }
         });
 
-        // 🔄 대카테고리에 따라 소카테고리 드롭다운 변경
+        // 🔄 대카테고리 선택에 따른 소카테고리 자동 변경 연동 함수
         function updateSubCategories() {
             const mainCat = document.getElementById('mainCat').value;
             const subSelect = document.getElementById('subCat');
@@ -147,17 +187,17 @@
             });
         }
 
-        // 🔑 토큰 관리
+        // 🔑 깃허브 토큰 인증 관리
         function getGithubToken() {
             let token = sessionStorage.getItem('gh_token');
             if (!token) {
-                token = prompt("GitHub Personal Access Token을 입력해 주세요:");
+                token = prompt("GitHub Personal Access Token (repo 권한)을 입력해 주세요:");
                 if (token) sessionStorage.setItem('gh_token', token.trim());
             }
             return token;
         }
 
-        // 🌐 GitHub data.json 불러오기
+        // 🌐 깃허브 data.json 불러오기
         async function fetchFromGithub() {
             const token = getGithubToken();
             if (!token) return;
@@ -182,7 +222,7 @@
             }
         }
 
-        // 💾 GitHub data.json 저장하기
+        // 💾 깃허브 data.json 저장하기
         async function saveToGithub() {
             const token = getGithubToken();
             if (!token) return;
@@ -222,11 +262,7 @@
             }
         }
 
-        function initGitHubData() {
-            fetchFromGithub();
-        }
-
-        // ➕ 신규 데이터 추가
+        // ➕ 등록 폼 제출
         function handleSave(e) {
             e.preventDefault();
             const newItem = {
@@ -237,28 +273,28 @@
                 tistoryUrl: document.getElementById('tistoryUrl').value
             };
 
-            portfolioData.unshift(newItem); // 최신 항목 맨 앞으로
+            portfolioData.unshift(newItem);
             saveToGithub();
 
             document.getElementById('imageUrl').value = '';
             document.getElementById('tistoryUrl').value = '';
         }
 
-        // 🗑️ 데이터 삭제
+        // 🗑️ 항목 삭제
         function deleteItem(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            if (confirm('해당 작품을 삭제하시겠습니까?')) {
                 portfolioData = portfolioData.filter(item => item.id !== id);
                 saveToGithub();
             }
         }
 
-        // 📋 목록 렌더링
+        // 📋 관리자 목록 렌더링
         function renderList() {
             const listArea = document.getElementById('itemList');
             listArea.innerHTML = '';
 
             if (portfolioData.length === 0) {
-                listArea.innerHTML = '<div style="color:#777; font-size:12px;">등록된 데이터가 없습니다.</div>';
+                listArea.innerHTML = '<div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">등록된 작품이 없습니다.</div>';
                 return;
             }
 
@@ -266,10 +302,8 @@
                 const row = document.createElement('div');
                 row.className = 'item-row';
                 row.innerHTML = `
-                    <div>
-                        <strong>[${item.mainCat}] ${item.subCat}</strong>
-                    </div>
-                    <button class="btn-del" onclick="deleteItem(${item.id})">삭제</button>
+                    <span><strong>[${item.mainCat}]</strong> ${item.subCat}</span>
+                    <button class="btn-del" onclick="deleteItem(${item.id})">&times;</button>
                 `;
                 listArea.appendChild(row);
             });
