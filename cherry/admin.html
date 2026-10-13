@@ -139,26 +139,23 @@
         <div class="admin-wrap">
             <div class="admin-card">
                 <h2 id="formTitle">작품 업로드 (GitHub 연동형)</h2>
-                <form id="uploadForm">
+                <form id="uploadForm" onsubmit="handleSave(event)">
                     <input type="hidden" id="editId">
                     
                     <div class="form-group">
                         <label>대카테고리</label>
-                        <select id="mainCat">
+                        <select id="mainCat" onchange="updateSubCategories()">
+                            <option value="DEVELOP">DEVELOP</option>
                             <option value="WEB">WEB</option>
                             <option value="PRINT">PRINT</option>
                             <option value="OTHER">OTHER</option>
-                            <option value="PRICE">PRICE</option>
-                            <option value="CONTACT">CONTACT</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>소카테고리 (WEB 선택 시)</label>
+                        <label>소카테고리</label>
                         <select id="subCat">
-                            <option value="BANNER">BANNER</option>
-                            <option value="DETAIL">DETAIL</option>
-                            <option value="PHOTO">PHOTO</option>
+                            <!-- 자바스크립트로 동적 생성됨 -->
                         </select>
                     </div>
 
@@ -184,16 +181,14 @@
         </div>
     </div>
 
-<script>
-
-
-        // 🔑 깃허브 연동 설정
+    <script>
+        // 🔑 GitHub 및 보안 설정
         const GITHUB_USERNAME = "bybrudi";
         const REPO_NAME = "portfolio";
-        const FILE_PATH = "cherry/data.json"; // cherry 폴더 안의 data.json 경로 정렬
+        const FILE_PATH = "cherry/data.json"; 
         const ADMIN_PIN = "202610";
 
-        // 📌 works.html과 완벽히 일치하는 카테고리 맵핑
+        // 📌 works.html과 완벽하게 일치하는 카테고리 매핑 구조
         const subCategoryMap = {
             DEVELOP: ['DEVELOP', 'CAFE24'],
             WEB: ['BANNER', 'DETAIL', 'CARD', 'AD+'],
@@ -201,42 +196,44 @@
             OTHER: ['SPACE&3D', 'PHOTO', 'EDIT', 'video']
         };
 
-        let currentSha = "";
-        let portfolioData = [];
-
         const pinInput = document.getElementById('pinInput');
-        const pinDots = document.querySelectorAll('.pin-dot');
+        const pinDots = document.getElementById('pinDots');
+        const dots = pinDots.querySelectorAll('.pin-dot');
         const lockScreen = document.getElementById('lockScreen');
         const adminDashboard = document.getElementById('adminDashboard');
 
-        // 화면 클릭 시 비밀번호 입력 포커스 유지
-        window.addEventListener('click', () => {
-            if(!lockScreen.classList.contains('is-hidden')) pinInput.focus();
-        });
+        let currentSha = "";
+        let portfolioData = [];
 
-        // 🔓 6자리 비밀번호(202610) 검증 로직
+        // 🔓 핀번호(202610) 잠금 해제 및 도트 애니메이션 처리
         pinInput.addEventListener('input', (e) => {
             const val = pinInput.value;
-            pinDots.forEach((dot, idx) => {
-                if (idx < val.length) dot.classList.add('active');
-                else dot.classList.remove('active');
+            dots.forEach((dot, idx) => {
+                if (idx < val.length) dot.classList.add('filled');
+                else dot.classList.remove('filled');
             });
 
             if (val.length === 6) {
                 if (val === ADMIN_PIN) {
-                    lockScreen.classList.add('is-hidden');
-                    adminDashboard.classList.add('active');
-                    updateSubCategories(); // 대카테고리 기본 소팅
-                    fetchFromGithub();     // 깃허브 데이터 로드
+                    lockScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        lockScreen.style.display = 'none';
+                        adminDashboard.classList.add('unlocked');
+                        updateSubCategories();
+                        fetchFromGithub();
+                    }, 600);
                 } else {
-                    alert('비밀번호가 올바르지 않습니다.');
-                    pinInput.value = '';
-                    pinDots.forEach(dot => dot.classList.remove('active'));
+                    pinDots.classList.add('shake');
+                    setTimeout(() => {
+                        pinDots.classList.remove('shake');
+                        pinInput.value = '';
+                        dots.forEach(dot => dot.classList.remove('filled'));
+                    }, 400);
                 }
             }
         });
 
-        // 🔄 대카테고리 선택에 따른 소카테고리 자동 변경 연동 함수
+        // 🔄 대카테고리 변경 시 소카테고리 동적 업데이트
         function updateSubCategories() {
             const mainCat = document.getElementById('mainCat').value;
             const subSelect = document.getElementById('subCat');
@@ -251,7 +248,7 @@
             });
         }
 
-        // 🔑 깃허브 토큰 인증 관리
+        // 🔑 깃허브 토큰 관리
         function getGithubToken() {
             let token = sessionStorage.getItem('gh_token');
             if (!token) {
@@ -261,7 +258,7 @@
             return token;
         }
 
-        // 🌐 깃허브 data.json 불러오기
+        // 🌐 깃허브에서 data.json 가져오기
         async function fetchFromGithub() {
             const token = getGithubToken();
             if (!token) return;
@@ -286,7 +283,7 @@
             }
         }
 
-        // 💾 깃허브 data.json 저장하기
+        // 💾 깃허브 data.json 동기화 저장
         async function saveToGithub() {
             const token = getGithubToken();
             if (!token) return;
@@ -315,6 +312,7 @@
                     const resData = await res.json();
                     currentSha = resData.content.sha;
                     alert('GitHub 서버에 성공적으로 동기화 저장되었습니다! 🎉');
+                    resetForm();
                     renderList();
                 } else {
                     alert('저장 실패: GitHub 토큰 권한을 확인하세요.');
@@ -326,39 +324,73 @@
             }
         }
 
-        // ➕ 등록 폼 제출
+        // ➕ 저장 및 수정 처리
         function handleSave(e) {
             e.preventDefault();
-            const newItem = {
-                id: Date.now(),
-                mainCat: document.getElementById('mainCat').value,
-                subCat: document.getElementById('subCat').value,
-                imageUrl: document.getElementById('imageUrl').value,
-                tistoryUrl: document.getElementById('tistoryUrl').value
-            };
+            const editId = document.getElementById('editId').value;
+            const mainCat = document.getElementById('mainCat').value;
+            const subCat = document.getElementById('subCat').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const tistoryUrl = document.getElementById('tistoryUrl').value;
 
-            portfolioData.unshift(newItem);
+            if (editId) {
+                // 수정 모드
+                const idx = portfolioData.findIndex(item => item.id == editId);
+                if (idx !== -1) {
+                    portfolioData[idx] = { id: Number(editId), mainCat, subCat, imageUrl, tistoryUrl };
+                }
+            } else {
+                // 신규 등록
+                const newItem = { id: Date.now(), mainCat, subCat, imageUrl, tistoryUrl };
+                portfolioData.unshift(newItem);
+            }
+
             saveToGithub();
+        }
 
-            document.getElementById('imageUrl').value = '';
-            document.getElementById('tistoryUrl').value = '';
+        // ✏️ 수정 모드 세팅
+        function editItem(id) {
+            const item = portfolioData.find(i => i.id == id);
+            if (!item) return;
+
+            document.getElementById('editId').value = item.id;
+            document.getElementById('mainCat').value = item.mainCat;
+            updateSubCategories();
+            document.getElementById('subCat').value = item.subCat;
+            document.getElementById('imageUrl').value = item.imageUrl;
+            document.getElementById('tistoryUrl').value = item.tistoryUrl;
+
+            document.getElementById('formTitle').innerText = '작품 정보 수정';
+            document.getElementById('submitBtn').innerText = '수정 완료';
+            document.getElementById('cancelBtn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 🔄 폼 초기화
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('uploadForm').reset();
+            updateSubCategories();
+            document.getElementById('formTitle').innerText = '작품 업로드 (GitHub 연동형)';
+            document.getElementById('submitBtn').innerText = '저장하기';
+            document.getElementById('cancelBtn').style.display = 'none';
         }
 
         // 🗑️ 항목 삭제
         function deleteItem(id) {
             if (confirm('해당 작품을 삭제하시겠습니까?')) {
-                portfolioData = portfolioData.filter(item => item.id !== id);
+                portfolioData = portfolioData.filter(item => item.id != id);
                 saveToGithub();
             }
         }
 
-        // 📋 관리자 목록 렌더링
+        // 📋 등록된 작품 리스트 렌더링
         function renderList() {
             const listArea = document.getElementById('itemList');
             listArea.innerHTML = '';
 
             if (portfolioData.length === 0) {
-                listArea.innerHTML = '<div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">등록된 작품이 없습니다.</div>';
+                listArea.innerHTML = '<div style="color:#888; font-size:13px; text-align:center; padding:20px;">등록된 작품이 없습니다.</div>';
                 return;
             }
 
@@ -366,8 +398,17 @@
                 const row = document.createElement('div');
                 row.className = 'item-row';
                 row.innerHTML = `
-                    <span><strong>[${item.mainCat}]</strong> ${item.subCat}</span>
-                    <button class="btn-del" onclick="deleteItem(${item.id})">&times;</button>
+                    <div class="item-info">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/40'}" alt="썸네일">
+                        <div class="item-details">
+                            <strong>[${item.mainCat}] ${item.subCat}</strong>
+                            <a href="${item.tistoryUrl}" target="_blank">${item.tistoryUrl}</a>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-edit" onclick="editItem(${item.id})">수정</button>
+                        <button class="btn-del" onclick="deleteItem(${item.id})">삭제</button>
+                    </div>
                 `;
                 listArea.appendChild(row);
             });
