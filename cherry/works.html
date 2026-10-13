@@ -365,7 +365,7 @@
         /* 🌐 깃허브 data.json 비동기 연동 함수 */
         async function fetchPortfolioData() {
             try {
-                const res = await fetch('data.json'); 
+                const res = await fetch('/data.json'); 
                 if (res.ok) {
                     const rawItems = await res.json();
                     portfolioItems = rawItems.map(item => ({
