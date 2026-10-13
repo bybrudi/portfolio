@@ -287,15 +287,15 @@
       .banner-content { flex-direction: column; align-items: flex-start; gap: 15px; }
     }
 
-       /* 🍷 수정된 상단 네비게이션바 (중앙 모음 정렬) */
+/* 상단 네비게이션바 양쪽 끝 배치 */
 .top-nav { 
     width: 100%; 
-    max-width: 860px; 
+    max-width: 1200px; /* 화면 넓이에 맞춰 조절 가능합니다 */
+    margin: 0 auto;
+    padding: 20px 40px;
     display: flex; 
-    justify-content: center; /* 👈 space-between에서 center로 변경 */
+    justify-content: space-between; /* 👈 좌측 텍스트와 우측 메뉴를 양 끝으로 배치 */
     align-items: center; 
-    gap: 30px;               /* 👈 CONCEPT 텍스트와 메뉴 사이 간격 추가 */
-    margin: 0 auto 50px auto;/* 👈 중앙 배치를 위해 margin 오토 처리 */
     font-family: -apple-system, sans-serif; 
     font-size: 12px; 
     font-weight: 600; 
@@ -303,9 +303,23 @@
     color: rgba(255, 253, 249, 0.6); 
 }
 
-.nav-links { display: flex; gap: 20px; }
-.nav-links a { color: rgba(255, 253, 249, 0.7); text-decoration: none; transition: color 0.2s; letter-spacing: 1px; cursor: pointer; }
-.nav-links a:hover { color: #FFFDF9; }
+/* 우측 메뉴 그룹 */
+.nav-links { 
+    display: flex; 
+    gap: 20px; 
+}
+
+.nav-links a { 
+    color: rgba(255, 253, 249, 0.7); 
+    text-decoration: none; 
+    transition: color 0.2s; 
+    letter-spacing: 1px; 
+    cursor: pointer; 
+}
+
+.nav-links a:hover { 
+    color: #FFFDF9; 
+}
    
   </style></div>
 <div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1">
