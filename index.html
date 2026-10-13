@@ -287,18 +287,31 @@
       .banner-content { flex-direction: column; align-items: flex-start; gap: 15px; }
     }
 
-        /* 상단 네비게이션바 및 미니멀 메뉴 버튼 */
-        .top-nav { width: 100%; max-width: 860px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; color: rgba(255, 253, 249, 0.6); }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: rgba(255, 253, 249, 0.7); text-decoration: none; transition: color 0.2s; letter-spacing: 1px; cursor: pointer; }
-        .nav-links a:hover { color: #FFFDF9; }
+       /* 🍷 수정된 상단 네비게이션바 (중앙 모음 정렬) */
+.top-nav { 
+    width: 100%; 
+    max-width: 860px; 
+    display: flex; 
+    justify-content: center; /* 👈 space-between에서 center로 변경 */
+    align-items: center; 
+    gap: 30px;               /* 👈 CONCEPT 텍스트와 메뉴 사이 간격 추가 */
+    margin: 0 auto 50px auto;/* 👈 중앙 배치를 위해 margin 오토 처리 */
+    font-family: -apple-system, sans-serif; 
+    font-size: 12px; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    color: rgba(255, 253, 249, 0.6); 
+}
 
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: rgba(255, 253, 249, 0.7); text-decoration: none; transition: color 0.2s; letter-spacing: 1px; cursor: pointer; }
+.nav-links a:hover { color: #FFFDF9; }
    
   </style></div>
 <div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1">
    <main class="hero">
       <!-- 🍷 상단 이동 탭 (네비게이션) -->
-  <nav class="top-nav" text-align="center">
+  <nav class="top-nav">
         <span>CONCEPT / A: CHERRY RED</span>
         <div class="nav-links">
             <a href="/">HOME /</a>
