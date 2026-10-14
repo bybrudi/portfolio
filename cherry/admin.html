@@ -87,6 +87,73 @@
 
         #pinInput { position: absolute; opacity: 0; pointer-events: none; }
 
+        /* 🔑 토큰 입력 화면 (페이지 내 고정 화면 - 탭을 옮겨도 사라지지 않음) */
+        #tokenScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #7A0C1E;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99998;
+        }
+
+        .token-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            max-width: 360px;
+            padding: 0 20px;
+        }
+
+        .token-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: rgba(255, 253, 249, 0.8);
+            text-align: center;
+        }
+
+        #tokenInput {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 253, 249, 0.4);
+            background: rgba(255, 253, 249, 0.08);
+            color: #FFFDF9;
+            font-size: 14px;
+            outline: none;
+            text-align: center;
+        }
+
+        #tokenInput::placeholder { color: rgba(255, 253, 249, 0.35); }
+        #tokenInput:focus { border-color: rgba(255, 253, 249, 0.8); }
+
+        .token-error {
+            min-height: 18px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #ffb3bd;
+            text-align: center;
+        }
+
+        #tokenBtn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #FFFDF9;
+            color: #7A0C1E;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #tokenBtn:disabled { opacity: 0.6; cursor: default; }
+
         #adminDashboard {
             width: 100%;
             max-width: 650px;
@@ -115,10 +182,45 @@
         .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
         .btn-edit { background: #0071e3; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .btn-del { background: #ff3b30; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+                /* 🍷 어드민 상단 이동 버튼 */
+        .admin-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px 16px 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #8B0017;
+        }
+
+        .admin-top-nav .nav-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #8B0017;
+            text-transform: uppercase;
+        }
+
+        .admin-nav-links { display: flex; gap: 20px; }
+
+        .admin-nav-links a {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #8B0017;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: opacity 0.2s ease;
+        }
+
+        .admin-nav-links a:hover { opacity: 0.5; }
+
+        
     </style>
 </head>
 <body onclick="document.getElementById('pinInput').focus()">
 
+    <!-- 🔒 PIN 잠금 화면 -->
     <div id="lockScreen">
         <div class="lock-container">
             <a href="/" class="home-link">CLICK HERE</a>
@@ -135,8 +237,27 @@
         <input type="password" id="pinInput" maxlength="6" autofocus>
     </div>
 
+    <!-- 🔑 토큰 입력 화면 -->
+    <div id="tokenScreen">
+        <form class="token-container" onsubmit="event.preventDefault(); submitToken();" autocomplete="off">
+            <div class="lock-icon">🔑</div>
+            <div class="token-title">GitHub 토큰을 입력해 주세요</div>
+            <input type="password" id="tokenInput" autocomplete="new-password" placeholder="github_pat_... / ghp_...">
+            <div class="token-error" id="tokenError"></div>
+            <button type="submit" id="tokenBtn">확인</button>
+            <a href="/" class="home-link">HOME</a>
+        </form>
+    </div>
+
     <div id="adminDashboard">
         <div class="admin-wrap">
+            <nav class="admin-top-nav">
+                <span class="nav-title">BY BRUDI / ADMIN</span>
+                <div class="admin-nav-links">
+                    <a href="/">HOME</a>
+                    <a href="works">WORKS</a>
+                </div>
+            </nav>
             <div class="admin-card">
                 <h2 id="formTitle">이미지 업로드 (data.json)</h2>
                 <form id="uploadForm" onsubmit="handleSave(event)">
@@ -185,7 +306,7 @@
         // 🔑 github 연결
         const GITHUB_USERNAME = "bybrudi";
         const REPO_NAME = "portfolio";
-        const FILE_PATH = "cherry/data.json"; 
+        const FILE_PATH = "cherry/data.json"; // works.html이 읽는 data.json 위치와 같아야 함
         
         const ADMIN_PIN = "202610";
 
@@ -202,9 +323,14 @@
         const dots = pinDots.querySelectorAll('.pin-dot');
         const lockScreen = document.getElementById('lockScreen');
         const adminDashboard = document.getElementById('adminDashboard');
+        const tokenScreen = document.getElementById('tokenScreen');
+        const tokenInput = document.getElementById('tokenInput');
+        const tokenError = document.getElementById('tokenError');
+        const tokenBtn = document.getElementById('tokenBtn');
 
         let currentSha = "";
         let portfolioData = [];
+        let dataLoaded = false;
 
         // 🔓 잠금 해제 및 도트 애니메이션 처리
         pinInput.addEventListener('input', (e) => {
@@ -219,9 +345,8 @@
                     lockScreen.style.opacity = '0';
                     setTimeout(() => {
                         lockScreen.style.display = 'none';
-                        adminDashboard.classList.add('unlocked');
                         updateSubCategories();
-                        fetchFromGithub();
+                        startAfterPin();
                     }, 600);
                 } else {
                     pinDots.classList.add('shake');
@@ -233,6 +358,54 @@
                 }
             }
         });
+
+        // 🔑 PIN 통과 후: 저장된 토큰이 있으면 바로 진입, 없으면 토큰 입력 화면
+        function startAfterPin() {
+            if (sessionStorage.getItem('gh_token')) {
+                enterDashboard();
+            } else {
+                showTokenScreen();
+            }
+        }
+
+        // 🔑 토큰 입력 화면 표시 (입력 전에는 닫히지 않음)
+        function showTokenScreen(msg) {
+            tokenScreen.style.display = 'flex';
+            tokenError.textContent = msg || '';
+            tokenInput.value = '';
+            tokenBtn.disabled = false;
+            tokenBtn.textContent = '확인';
+            setTimeout(() => tokenInput.focus(), 50);
+        }
+
+        function hideTokenScreen() {
+            tokenScreen.style.display = 'none';
+        }
+
+        // 🔑 토큰 제출 → GitHub 접속으로 검증
+        async function submitToken() {
+            const t = tokenInput.value.trim();
+            if (!t) {
+                tokenError.textContent = '토큰을 입력해 주세요.';
+                return;
+            }
+            sessionStorage.setItem('gh_token', t);
+            tokenError.textContent = '';
+            tokenBtn.disabled = true;
+            tokenBtn.textContent = '확인 중...';
+            await enterDashboard();
+        }
+
+        // 🚪 어드민 화면 진입 (토큰이 틀리면 토큰 화면으로 되돌림)
+        async function enterDashboard() {
+            adminDashboard.classList.add('unlocked');
+            const result = await fetchFromGithub();
+            if (result === 'auth') {
+                showTokenScreen('토큰이 올바르지 않거나 권한이 없어요. 다시 입력해 주세요.');
+                return;
+            }
+            hideTokenScreen();
+        }
 
         // 🔄 대카테고리 변경 시 소카테고리 동적 업데이트
         function updateSubCategories() {
@@ -249,115 +422,116 @@
             });
         }
 
-        // 🔑 깃허브 토큰 입력
+        // 🔑 저장된 토큰 가져오기 (없으면 토큰 입력 화면을 띄움)
         function getGithubToken() {
-            let token = sessionStorage.getItem('gh_token');
-            if (!token) {
-                token = prompt("토큰을 입력해 주세요:");
-                if (token) sessionStorage.setItem('gh_token', token.trim());
-            }
+            const token = sessionStorage.getItem('gh_token');
+            if (!token) showTokenScreen('토큰이 필요해요. 입력해 주세요.');
             return token;
         }
 
-        // 🌐 깃허브에서 data.json 가져오기
-let dataLoaded = false;
-
-function githubErrorHint(status) {
-    if (status === 401) return '토큰이 잘못됐거나 만료됐어요.';
-    if (status === 403) return '토큰에 이 저장소의 쓰기 권한(Contents: Read and write)이 없어요.';
-    if (status === 404) return `경로(${FILE_PATH})가 틀렸거나, 토큰이 이 저장소에 접근할 수 없어요.`;
-    if (status === 409 || status === 422) return '다른 곳에서 data.json이 바뀌었어요. 새로고침 후 다시 시도하세요.';
-    return '알 수 없는 오류예요.';
-}
-
-function showListError(msg) {
-    document.getElementById('itemList').innerHTML =
-        `<div style="color:#c00; font-size:13px; text-align:center; padding:20px; line-height:1.6;">${msg}</div>`;
-}
-
-// 🌐 깃허브에서 data.json 가져오기
-async function fetchFromGithub() {
-    const token = getGithubToken();
-    if (!token) {
-        showListError('토큰이 입력되지 않았어요. 새로고침 후 다시 시도하세요.');
-        return;
-    }
-
-    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}?t=${Date.now()}`;
-    try {
-        const res = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github+json'
-            },
-            cache: 'no-store'
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            currentSha = data.sha;
-            const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-            portfolioData = JSON.parse(content || '[]');
-            dataLoaded = true;
-            renderList();
-        } else {
-            console.error('불러오기 실패', res.status, await res.text());
-            showListError(`불러오기 실패 (${res.status})<br>${githubErrorHint(res.status)}<br>현재 경로: ${FILE_PATH}`);
-            if (res.status === 401 || res.status === 403) sessionStorage.removeItem('gh_token');
+        function githubErrorHint(status) {
+            if (status === 401) return '토큰이 잘못됐거나 만료됐어요.';
+            if (status === 403) return '토큰에 이 저장소의 쓰기 권한(Contents: Read and write)이 없어요.';
+            if (status === 404) return `경로(${FILE_PATH})가 틀렸거나, 토큰이 이 저장소에 접근할 수 없어요.`;
+            if (status === 409 || status === 422) return '다른 곳에서 data.json이 바뀌었어요. 새로고침 후 다시 시도하세요.';
+            return '알 수 없는 오류예요.';
         }
-    } catch (err) {
-        console.error(err);
-        showListError('네트워크 오류 또는 데이터 형식 오류예요. F12 콘솔을 확인하세요.');
-    }
-}
 
-// 💾 깃허브 data.json 동기화 저장
-async function saveToGithub() {
-    if (!dataLoaded) {
-        alert('기존 데이터를 아직 불러오지 못해서 저장할 수 없어요.\n저장하면 기존 data.json이 덮어써질 수 있어요. 새로고침 후 다시 시도하세요.');
-        return;
-    }
-    const token = getGithubToken();
-    if (!token) return;
-
-    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const jsonString = JSON.stringify(portfolioData, null, 2);
-    const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
-
-    const payload = {
-        message: "Update portfolio data via Admin",
-        content: encodedContent,
-        sha: currentSha
-    };
-
-    try {
-        const res = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            const resData = await res.json();
-            currentSha = resData.content.sha;
-            alert('업로드 완료! 🎉\n사이트 반영까지 1~2분 걸릴 수 있어요.');
-            resetForm();
-            renderList();
-        } else {
-            console.error('저장 실패', res.status, await res.text());
-            alert(`저장 실패 (${res.status})\n${githubErrorHint(res.status)}\n현재 경로: ${FILE_PATH}`);
-            if (res.status === 401 || res.status === 403) sessionStorage.removeItem('gh_token');
-            fetchFromGithub(); // 화면을 실제 저장된 상태로 되돌림
+        function showListError(msg) {
+            document.getElementById('itemList').innerHTML =
+                `<div style="color:#c00; font-size:13px; text-align:center; padding:20px; line-height:1.6;">${msg}</div>`;
         }
-    } catch (err) {
-        console.error(err);
-        alert('네트워크 오류가 발생했습니다.');
-    }
-}
+
+        // 🌐 깃허브에서 data.json 가져오기  →  'ok' | 'auth' | 'error' 반환
+        async function fetchFromGithub() {
+            const token = sessionStorage.getItem('gh_token');
+            if (!token) return 'auth';
+
+            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}?t=${Date.now()}`;
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github+json'
+                    },
+                    cache: 'no-store'
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    currentSha = data.sha;
+                    const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+                    portfolioData = JSON.parse(content || '[]');
+                    dataLoaded = true;
+                    renderList();
+                    return 'ok';
+                }
+
+                console.error('불러오기 실패', res.status, await res.text());
+                if (res.status === 401 || res.status === 403) {
+                    sessionStorage.removeItem('gh_token');
+                    return 'auth';
+                }
+                showListError(`불러오기 실패 (${res.status})<br>${githubErrorHint(res.status)}<br>현재 경로: ${FILE_PATH}`);
+                return 'error';
+            } catch (err) {
+                console.error(err);
+                showListError('네트워크 오류 또는 데이터 형식 오류예요. F12 콘솔을 확인하세요.');
+                return 'error';
+            }
+        }
+
+        // 💾 깃허브 data.json 동기화 저장
+        async function saveToGithub() {
+            if (!dataLoaded) {
+                alert('기존 데이터를 아직 불러오지 못해서 저장할 수 없어요.\n저장하면 기존 data.json이 덮어써질 수 있어요. 새로고침 후 다시 시도하세요.');
+                return;
+            }
+            const token = getGithubToken();
+            if (!token) return;
+
+            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+            const jsonString = JSON.stringify(portfolioData, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+            const payload = {
+                message: "Update portfolio data via Admin",
+                content: encodedContent,
+                sha: currentSha
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const resData = await res.json();
+                    currentSha = resData.content.sha;
+                    alert('업로드 완료! 🎉\n사이트 반영까지 1~2분 걸릴 수 있어요.');
+                    resetForm();
+                    renderList();
+                } else {
+                    console.error('저장 실패', res.status, await res.text());
+                    if (res.status === 401 || res.status === 403) {
+                        sessionStorage.removeItem('gh_token');
+                        showTokenScreen('토큰이 만료됐거나 쓰기 권한이 없어요. 다시 입력해 주세요.');
+                        return;
+                    }
+                    alert(`저장 실패 (${res.status})\n${githubErrorHint(res.status)}\n현재 경로: ${FILE_PATH}`);
+                    fetchFromGithub(); // 화면을 실제 저장된 상태로 되돌림
+                }
+            } catch (err) {
+                console.error(err);
+                alert('네트워크 오류가 발생했습니다.');
+            }
+        }
 
         // ➕ 저장 및 수정 처리
         function handleSave(e) {
