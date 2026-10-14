@@ -25,7 +25,6 @@
       text-align: center; 
     }
 
-
     .hero {
       min-height: 85vh;
       display: flex;
@@ -149,17 +148,17 @@
     }
 
    .brand-slogan {
-  font-family: 'Courier Prime', 'Courier New', monospace; /* 감성 모노스페이스 폰트 */
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: 1.5px;
-  color: #FFFDF9;
-  opacity: 0.9;
-  line-height: 1.8; /* 3줄 문단 간격 최적화 */
-  word-break: keep-all;
-  max-width: 600px;
-  margin: 0 auto;
-}
+     font-family: 'Courier Prime', 'Courier New', monospace; /* 감성 모노스페이스 폰트 */
+     font-size: 0.95rem;
+     font-weight: 500;
+     letter-spacing: 1.5px;
+     color: #FFFDF9;
+     opacity: 0.9;
+     line-height: 1.8; /* 3줄 문단 간격 최적화 */
+     word-break: keep-all;
+     max-width: 600px;
+     margin: 0 auto;
+   }
 
     .stats-grid {
       display: grid;
@@ -287,50 +286,49 @@
       .banner-content { flex-direction: column; align-items: flex-start; gap: 15px; }
     }
 
-/* 상단 네비게이션바 양쪽 끝 배치 */
-.top-nav { 
-    width: 100%; 
-    max-width: 1200px; /* 화면 넓이에 맞춰 조절 가능합니다 */
-    margin: 0 auto;
-    padding: 20px 40px;
-    display: flex; 
-    justify-content: space-between; /* 👈 좌측 텍스트와 우측 메뉴를 양 끝으로 배치 */
-    align-items: center; 
-    font-family: -apple-system, sans-serif; 
-    font-size: 12px; 
-    font-weight: 600; 
-    text-transform: uppercase; 
-    color: rgba(255, 253, 249, 0.6); 
-}
+    /* 🍷 lab.html과 완벽히 동일한 상단 네비게이션바 규격 (max-width: 860px) */
+    .top-nav { 
+        width: 100%; 
+        max-width: 860px; /* lab.html과 동일한 폭으로 통일 */
+        margin: 0 auto 50px auto; /* 상단 여백 및 하단 마진 통일 */
+        padding: 0;
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        font-family: -apple-system, sans-serif; 
+        font-size: 12px; 
+        font-weight: 600; 
+        text-transform: uppercase; 
+        color: rgba(255, 253, 249, 0.6); 
+    }
 
-/* 우측 메뉴 그룹 */
-.nav-links { 
-    display: flex; 
-    gap: 20px; 
-}
+    /* 우측 메뉴 그룹 */
+    .nav-links { 
+        display: flex; 
+        gap: 20px; 
+    }
 
-.nav-links a { 
-    color: rgba(255, 253, 249, 0.7); 
-    text-decoration: none; 
-    transition: color 0.2s; 
-    letter-spacing: 1px; 
-    cursor: pointer; 
-}
+    .nav-links a { 
+        color: rgba(255, 253, 249, 0.7); 
+        text-decoration: none; 
+        transition: color 0.2s; 
+        letter-spacing: 1px; 
+        cursor: pointer; 
+    }
 
-.nav-links a:hover { 
-    color: #FFFDF9; 
-}
-   
-  </style></div>
+    .nav-links a:hover { 
+        color: #FFFDF9; 
+    }
+   </style></div>
 <div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1">
    <main class="hero">
-      <!-- 🍷 상단 이동 탭 (네비게이션) -->
-  <nav class="top-nav">
+     <!-- 🍷 상단 이동 탭 (네비게이션) -->
+     <nav class="top-nav">
         <span>CONCEPT / A: CHERRY RED</span>
         <div class="nav-links">
-            <a href="/">HOME /</a>
-           <a href="cherry/lab">LAB /</a>
-           <a href="cherry/works">WORKS</a>
+            <a href="/">HOME</a>
+            <a href="cherry/works">WORKS /</a>
+            <a href="cherry/admin">ADMIN</a>
         </div>
     </nav>
 
