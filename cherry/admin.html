@@ -185,7 +185,7 @@
         // 🔑 github 연결
         const GITHUB_USERNAME = "bybrudi";
         const REPO_NAME = "portfolio";
-        const FILE_PATH = "data.json"; 
+        const FILE_PATH = "cherry/data.json"; 
         
         const ADMIN_PIN = "202610";
 
@@ -260,70 +260,104 @@
         }
 
         // 🌐 깃허브에서 data.json 가져오기
-        async function fetchFromGithub() {
-            const token = getGithubToken();
-            if (!token) return;
+let dataLoaded = false;
 
-            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-            try {
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    currentSha = data.sha;
-                    const content = decodeURIComponent(escape(atob(data.content)));
-                    portfolioData = JSON.parse(content || '[]');
-                    renderList();
-                } else {
-                    alert('GitHub 데이터를 불러오지 못했습니다. 토큰 권한을 확인하세요.');
-                    sessionStorage.removeItem('gh_token');
-                }
-            } catch (err) {
-                console.error(err);
-            }
+function githubErrorHint(status) {
+    if (status === 401) return '토큰이 잘못됐거나 만료됐어요.';
+    if (status === 403) return '토큰에 이 저장소의 쓰기 권한(Contents: Read and write)이 없어요.';
+    if (status === 404) return `경로(${FILE_PATH})가 틀렸거나, 토큰이 이 저장소에 접근할 수 없어요.`;
+    if (status === 409 || status === 422) return '다른 곳에서 data.json이 바뀌었어요. 새로고침 후 다시 시도하세요.';
+    return '알 수 없는 오류예요.';
+}
+
+function showListError(msg) {
+    document.getElementById('itemList').innerHTML =
+        `<div style="color:#c00; font-size:13px; text-align:center; padding:20px; line-height:1.6;">${msg}</div>`;
+}
+
+// 🌐 깃허브에서 data.json 가져오기
+async function fetchFromGithub() {
+    const token = getGithubToken();
+    if (!token) {
+        showListError('토큰이 입력되지 않았어요. 새로고침 후 다시 시도하세요.');
+        return;
+    }
+
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}?t=${Date.now()}`;
+    try {
+        const res = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github+json'
+            },
+            cache: 'no-store'
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            currentSha = data.sha;
+            const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+            portfolioData = JSON.parse(content || '[]');
+            dataLoaded = true;
+            renderList();
+        } else {
+            console.error('불러오기 실패', res.status, await res.text());
+            showListError(`불러오기 실패 (${res.status})<br>${githubErrorHint(res.status)}<br>현재 경로: ${FILE_PATH}`);
+            if (res.status === 401 || res.status === 403) sessionStorage.removeItem('gh_token');
         }
+    } catch (err) {
+        console.error(err);
+        showListError('네트워크 오류 또는 데이터 형식 오류예요. F12 콘솔을 확인하세요.');
+    }
+}
 
-        // 💾 깃허브 data.json 동기화 저장
-        async function saveToGithub() {
-            const token = getGithubToken();
-            if (!token) return;
+// 💾 깃허브 data.json 동기화 저장
+async function saveToGithub() {
+    if (!dataLoaded) {
+        alert('기존 데이터를 아직 불러오지 못해서 저장할 수 없어요.\n저장하면 기존 data.json이 덮어써질 수 있어요. 새로고침 후 다시 시도하세요.');
+        return;
+    }
+    const token = getGithubToken();
+    if (!token) return;
 
-            const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-            const jsonString = JSON.stringify(portfolioData, null, 2);
-            const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+    const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+    const jsonString = JSON.stringify(portfolioData, null, 2);
+    const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
 
-            const payload = {
-                message: "Update portfolio data via Admin",
-                content: encodedContent,
-                sha: currentSha
-            };
+    const payload = {
+        message: "Update portfolio data via Admin",
+        content: encodedContent,
+        sha: currentSha
+    };
 
-            try {
-                const res = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+    try {
+        const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-                if (res.ok) {
-                    const resData = await res.json();
-                    currentSha = resData.content.sha;
-                    alert('업로드 완료! 🎉');
-                    resetForm();
-                    renderList();
-                } else {
-                    alert('저장 실패: GitHub 토큰 권한을 확인하세요.');
-                    sessionStorage.removeItem('gh_token');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('네트워크 오류가 발생했습니다.');
-            }
+        if (res.ok) {
+            const resData = await res.json();
+            currentSha = resData.content.sha;
+            alert('업로드 완료! 🎉\n사이트 반영까지 1~2분 걸릴 수 있어요.');
+            resetForm();
+            renderList();
+        } else {
+            console.error('저장 실패', res.status, await res.text());
+            alert(`저장 실패 (${res.status})\n${githubErrorHint(res.status)}\n현재 경로: ${FILE_PATH}`);
+            if (res.status === 401 || res.status === 403) sessionStorage.removeItem('gh_token');
+            fetchFromGithub(); // 화면을 실제 저장된 상태로 되돌림
         }
+    } catch (err) {
+        console.error(err);
+        alert('네트워크 오류가 발생했습니다.');
+    }
+}
 
         // ➕ 저장 및 수정 처리
         function handleSave(e) {
