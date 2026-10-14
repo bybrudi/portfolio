@@ -25,13 +25,13 @@
       text-align: center; 
     }
 
-    .hero {
-      min-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-    }
+.hero {
+  min-height: calc(85vh - 80px); /* nav 높이만큼 보정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
 
     .hero-subtitle {
       text-align: center;
@@ -291,15 +291,6 @@
         width: 100%; 
         max-width: 860px; /* lab.html과 동일한 폭으로 통일 */
         margin: 0 auto 50px auto; /* 상단 여백 및 하단 마진 통일 */
-        padding: 0;
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        font-family: -apple-system, sans-serif; 
-        font-size: 12px; 
-        font-weight: 600; 
-        text-transform: uppercase; 
-        color: rgba(255, 253, 249, 0.6); 
     }
 
     /* 우측 메뉴 그룹 */
@@ -321,8 +312,8 @@
     }
    </style></div>
 <div data-ez-module="user-defined/1" data-ez-name="USER DEFINED" data-ez-type="plain" data-ez="module-1yn9996-1">
-   <main class="hero">
-     <!-- 🍷 상단 이동 탭 (네비게이션) -->
+
+   <!-- 🍷 상단 이동 탭 (네비게이션) -->
      <nav class="top-nav">
         <span>CONCEPT / A: CHERRY RED</span>
         <div class="nav-links">
@@ -331,7 +322,8 @@
             <a href="cherry/works">WORKS</a>
         </div>
     </nav>
-
+   
+   <main class="hero">
     <p class="hero-subtitle">Digital &amp; Visual Designer</p>
 
     <div class="marquee-container">
