@@ -6,8 +6,7 @@
     <title>BYBRUDI - Works & Estimate</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 0 20px 60px 20px; }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 0 20px; min-height: 100vh; min-height: 100dvh; }
         /* 🍷 1px 체리레드 시그니처 탑바 */
         .top-minimal-bar {
             width: 100%;
@@ -137,6 +136,28 @@
             .price-layout { display: grid; grid-template-columns: 1fr; gap: 30px; align-items: start; margin-top: 20px; }
             .gallery-container { column-count: 2; }
         }
+                /* ===== 하단 ADMIN 푸터 (index / works / lab 공통) ===== */
+        :root { --footer-top: 120px; --footer-bottom: 80px; }
+
+        .page-footer {
+            width: 100%;
+            margin-top: auto;
+            padding: var(--footer-top) 0 var(--footer-bottom);
+            text-align: center;
+            line-height: 1;
+        }
+        .page-footer a {
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: rgba(139, 0, 23, 0.6);
+            transition: color 0.2s ease;
+        }
+        .page-footer a:hover { color: #8B0017; }
     </style>
 </head>
 <body>
@@ -275,6 +296,12 @@
             </div>
         </div>
     </div>
+    
+    <footer class="page-footer">
+        <a href="admin">ADMIN</a>
+    </footer>
+
+    <script>
 
     <script>
         /* 페이드 인 */
