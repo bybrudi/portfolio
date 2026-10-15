@@ -302,8 +302,6 @@
     </footer>
 
     <script>
-
-    <script>
         /* 페이드 인 */
         window.addEventListener('DOMContentLoaded', () => {
             const overlay = document.getElementById('minimalOverlay');
@@ -333,7 +331,10 @@
         let currentMain = 'DEVELOP';
         let currentSub = 'ALL';
         let cartItems = [];
-        let portfolioItems = []; // 🌐 깃허브 data.json 데이터를 담을 전역 변수
+        let portfolioItems = [];
+        
+        
+        // 🌐 깃허브 data.json 데이터를 담을 전역 변수
 
         function switchMainTab(mainCat, btn) {
             currentMain = mainCat;
@@ -406,8 +407,13 @@
             } catch (err) {
                 console.error("데이터 로드 실패:", err);
             }
-            // 데이터를 불러온 후 첫 탭 렌더링 실행
-            switchMainTab('DEVELOP', document.querySelector('.main-btn'));
+
+            // 데이터를 불러온 후 첫 탭 렌더링 실행 (?tab= 값이 있으면 그 탭으로 시작)
+            const params = new URLSearchParams(window.location.search);
+            const startTab = (params.get('tab') || 'DEVELOP').toUpperCase();
+            const startBtn = Array.from(document.querySelectorAll('.main-btn'))
+                .find(b => b.innerText.trim() === startTab) || document.querySelector('.main-btn');
+            switchMainTab(startBtn.innerText.trim(), startBtn);
         }
 
         function getSafePortfolio() {
