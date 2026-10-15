@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESIGN DIRECTION [CHERRY RED] - BYBRUDI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
+      body {
             font-family: 'Garamond', 'Times New Roman', serif; 
             background: #7A0C1E; color: #FFFDF9; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding: 60px 20px; 
+            padding: 60px 20px 0; 
             text-align: center; 
-             }
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
 
          /* 상단 네비게이션바 및 미니멀 메뉴 버튼 */
         .top-nav { width: 100%; max-width: 860px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; color: rgba(255, 253, 249, 0.6); }
@@ -86,6 +91,28 @@
         .blur-overlay.is-expanding .anim-circle {
             transform: scale(30); /* 원이 화면을 가득 채우며 퍼짐 */
         }
+                /* ===== 하단 ADMIN 푸터 (index / works / lab 공통) ===== */
+        :root { --footer-top: 120px; --footer-bottom: 80px; }
+
+        .page-footer {
+            width: 100%;
+            margin-top: auto;
+            padding: var(--footer-top) 0 var(--footer-bottom);
+            text-align: center;
+            line-height: 1;
+        }
+        .page-footer a {
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: rgba(255, 253, 249, 0.5);
+            transition: color 0.2s ease;
+        }
+        .page-footer a:hover { color: #FFFDF9; }
     </style>
 </head>
 <body>
@@ -109,7 +136,6 @@
     <nav class="top-nav">
         <span>CONCEPT / A: CHERRY RED</span>
         <div class="nav-links">
-            <a href="admin">ADMIN</a>
             <a href="/">HOME /</a>
             <a href="works">WORKS</a>
         </div>
@@ -155,6 +181,8 @@
 
     </main>
 
-   
+    <footer class="page-footer">
+        <a href="admin">ADMIN</a>
+    </footer>   
 </body>
 </html>
