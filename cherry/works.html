@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
     <title>BYBRUDI - Works & Estimate</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { background: #fff; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 0 20px; min-height: 100vh; min-height: 100dvh; }
-        /* 🍷 1px 체리레드 시그니처 탑바 */
+
+        /* 🍷 체리레드 시그니처 탑바 */
         .top-minimal-bar {
             width: 100%;
             max-width: 1080px;
@@ -34,44 +37,56 @@
         .nav-arrow-btn:hover { opacity: 0.5; }
 
         /* 📍 대카테고리 네비게이션 */
-        .main-nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        .main-btn { 
-            padding: 10px 24px; 
-            border-radius: 30px; 
-            border: 1.5px solid #111111; 
-            background: #fff; 
-            color: #111111;
-            font-size: 13px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
+        .main-nav { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; justify-content: center; }
+        .main-btn {
+            padding: 9px 20px;
+            border-radius: 30px;
+            border: 1px solid #8B0017;
+            background: #fff;
+            color: #8B0017;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .main-btn.active, .main-btn:hover { background: #111111; color: #fff; }
+        .main-btn.active { background: #8B0017; color: #fff; }
 
-   /* 📍 소카테고리 네비게이션 */
-        .sub-nav { display: flex; gap: 8px; margin-bottom: 60px; flex-wrap: wrap; justify-content: center; }
-        .sub-btn { 
-            padding: 8px 18px; 
-            border-radius: 20px; 
-            border: none; 
-            background: #f0f0f0; 
-            color: #777777; 
-            font-size: 12px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
+        /* 📍 소카테고리 네비게이션 */
+        .sub-nav { display: flex; gap: 6px; margin-bottom: 50px; flex-wrap: wrap; justify-content: center; }
+        .sub-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: none;
+            background: transparent;
+            color: rgba(139, 0, 23, 0.5);
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .sub-btn.active, .sub-btn:hover { background: #222222; color: #fff; }
+        .sub-btn.active { background: rgba(139, 0, 23, 0.08); color: #8B0017; }
 
-      /* 📍 메인 콘텐츠 뷰어 영역 */
-        .content-section { 
-            width: 100%; 
-            max-width: 1080px; 
-            display: none; 
+        /* 마우스가 있는 기기(PC)에서만 hover 효과 (아이폰에서 눌린 버튼이 남는 현상 방지) */
+        @media (hover: hover) {
+            .main-btn:hover { background: #8B0017; color: #fff; }
+            .sub-btn:hover { background: rgba(139, 0, 23, 0.08); color: #8B0017; }
+        }
+
+        /* 📍 메인 콘텐츠 뷰어 영역 */
+        .content-section {
+            width: 100%;
+            max-width: 1080px;
+            display: none;
             margin-top: 20px;
         }
         .content-section.active-section { display: block; }
-        
+
         /* 1️⃣ 일반 갤러리 카드 레이아웃 (WEB, PRINT, OTHER) */
         .gallery-container { column-count: 3; column-gap: 20px; width: 100%; }
         .gallery-card { break-inside: avoid; margin-bottom: 20px; position: relative; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.25s ease; }
@@ -86,32 +101,46 @@
         .develop-wide-card { width: 100%; background: #f9f9fb; border-radius: 12px; overflow: hidden; border: 1px solid #eee; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s; }
         .develop-wide-card:hover { transform: translateY(-3px); }
         .develop-wide-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
-        .develop-wide-info { padding: 24px; }
-        .develop-wide-info h3 { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 8px; }
-        .develop-wide-info p { font-size: 14px; color: #666; line-height: 1.5; }
 
         /* 3️⃣ PRICE 탭: 쇼핑몰 장바구니식 자동 견적 계산기 */
-        .price-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
-        .price-menu-box { background: #fafafa; padding: 24px; border-radius: 12px; border: 1px solid #eee; }
+        .price-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 30px; align-items: start; }
+        .price-menu-box { min-width: 0; background: #fafafa; padding: 24px; border-radius: 12px; border: 1px solid #eee; }
         .price-menu-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #111; }
         .option-add-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .option-add-row select { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; }
-        .option-add-row button { padding: 10px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        
-        .estimator-cart-box { background: #fff; padding: 24px; border-radius: 12px; border: 2px solid #111; position: sticky; top: 20px; }
+        .option-add-row select { flex: 1; min-width: 0; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; background: #fff; }
+        .option-add-row button { flex-shrink: 0; white-space: nowrap; padding: 10px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+        .estimator-cart-box { min-width: 0; background: #fff; padding: 24px; border-radius: 12px; border: 2px solid #111; position: sticky; top: 20px; }
         .estimator-cart-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .cart-item-list { min-height: 120px; max-height: 250px; overflow-y: auto; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
-        .cart-item-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px 10px; background: #f9f9fb; border-radius: 6px; }
-        .cart-item-row button { background: none; border: none; color: #ff4d4d; cursor: pointer; font-weight: bold; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; padding: 8px 10px; background: #f9f9fb; border-radius: 6px; }
+        .cart-item-row span { min-width: 0; }
+        .cart-item-row button { flex-shrink: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; font-weight: bold; }
         .cart-total-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; padding-top: 16px; margin-bottom: 20px; font-size: 15px; font-weight: 700; }
         .cart-total-bar strong { font-size: 22px; color: #8B0017; }
         .to-contact-btn { width: 100%; padding: 14px; background: #8B0017; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
 
         /* 4️⃣ CONTACT 탭: 구글 시트 연동형 폼 */
-        .contact-form-box { max-width: 680px; margin: 20px auto 0 auto; display: flex; flex-direction: column; gap: 16px; background: #f9f9fb; padding: 30px; border-radius: 12px; border: 1px solid #eee; }
+        .contact-form-box { width: 100%; max-width: 680px; margin: 20px auto 0 auto; display: flex; flex-direction: column; gap: 16px; background: #f9f9fb; padding: 30px; border-radius: 12px; border: 1px solid #eee; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 13px; font-weight: 700; color: #333; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; background: #fff; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #111;
+            background: #fff;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .form-group input { height: 44px; }
+        .form-group input[type="date"] { display: block; text-align: left; }
+        .form-group input[type="date"]::-webkit-date-and-time-value { text-align: left; }
         .form-group textarea { height: 120px; resize: vertical; }
         .contact-submit-btn { padding: 14px; background: #111; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; }
         .contact-submit-btn:hover { background: #8B0017; }
@@ -124,19 +153,20 @@
         .modal-header { display: none; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #eee; background: #fff; }
         .modal-title { font-size: 16px; font-weight: 600; color: #111; }
         .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-        .modal-body { flex: 1; overflow: hidden !important;position: relative;padding: 0 !important}
-        .modal-iframe { width: 100%; height: calc(100% + 90px);margin-top: -90px;border: none;}
-        
+        .modal-body { flex: 1; overflow: hidden !important; position: relative; padding: 0 !important; }
+        .modal-iframe { width: 100%; height: calc(100% + 90px); margin-top: -90px; border: none; }
 
-        /* 페이드 오버레이 */
+        /* 페이드 오버레이 (페이지 이동 연출용) */
         .minimal-fade-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #8B0017; z-index: 9999; pointer-events: none; opacity: 1; transition: opacity 0.35s ease-in-out; }
         .minimal-fade-overlay.is-hidden { opacity: 0; }
 
         @media (max-width: 800px) {
-            .price-layout { display: grid; grid-template-columns: 1fr; gap: 30px; align-items: start; margin-top: 20px; }
+            .price-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 20px; }
+            .estimator-cart-box { position: static; }
             .gallery-container { column-count: 2; }
         }
-                /* ===== 하단 ADMIN 푸터 (index / works / lab 공통) ===== */
+
+        /* ===== 하단 ADMIN 푸터 (index / works / lab 공통) ===== */
         :root { --footer-top: 120px; --footer-bottom: 80px; }
 
         .page-footer {
@@ -166,7 +196,7 @@
 
     <!-- 상단 탑바 -->
     <header class="top-minimal-bar">
-        <a href="lab" class="nav-arrow-btn">&larr; SPECIAL NOW</a>
+        <a href="lab" class="nav-arrow-btn">&larr; LAB</a>
         <a href="/" class="nav-arrow-btn">HOME &rarr;</a>
     </header>
 
@@ -201,28 +231,8 @@
             <div class="price-menu-box">
                 <h3>🛠️ 작업 항목 선택 및 추가</h3>
                 <div class="option-add-row">
-                    <select id="itemSelect">
-                        <option value="프로모션 배너 (1개)|30000">프로모션 배너 (30,000원)</option>
-                        <option value="기본 상세페이지 디자인|150000">상세페이지 기본형 (300,000원)</option>
-                        <option value="기본 상세페이지 디자인|150000">상세페이지 gif형 (400,000원)</option>
-                        <option value="상세페이지 set1 |450000">상세페이지 set1 (450,000원)</option>
-                        <option value="상세페이지 set1 |450000">상세페이지 set2 (600,000원)</option>
-                        <option value="상세페이지 set1 |450000">상세페이지 set3 (800,000원)</option>
-                        <option value="상세페이지 기획 추가 |200000">+기획 추가 (200,000원)</option>
-                        <option value="상세페이지 촬영 추가 |200000">+소품 촬영/보정 추가 (200,000원)</option>
-                        <option value="썸네일 추가 1장 |2000">+썸네일 추가 1장 (2,000원)</option>
-                        <option value="카드뉴스 세트 (5장)|100000">카드뉴스 세트 5장 (100,000원)</option>
-                        <option value="카드뉴스 세트 (10장)|150000">카드뉴스 세트 10장 (150,000원)</option>
-                        <option value="편집 인쇄물 (전단지)|20000">전단지 1P 당 (20,000원)</option>
-                        <option value="편집 인쇄물 (메뉴판)|30000">메뉴판 1P 당 (30,000원)</option>
-                        <option value="누끼 추가 1장 |5000">+누끼 추가 1장 (5,000원)</option>
-                        <option value="이미지 보정 1장 |15000">이미지 보정 (15,000원)</option>
-                        <option value="패키지 박스/라벨 디자인|200000">패키지 박스/라벨 디자인 (200,000원)</option>
-                        <option value="CAFE24 세팅 및 디자인 구축|350000">CAFE24 세팅 및 구축 (350,000원)</option>
-                        <option value="브랜드 홈페이지 구축 원페이지|1000000">브랜드 홈페이지 구축 (1,000,000원)</option>
-                        <option value="브랜드 홈페이지 구축 프리미엄|3000000">브랜드 홈페이지 구축 프리미엄 (3,000,000원)</option>
-                         <option value="홈페이지 구축 페이지 추가|500000">+홈페이지 페이지 추가 (500,000원)</option>
-                    </select>
+                    <!-- 항목은 아래 자바스크립트의 priceItems 목록에서 자동으로 만들어집니다 -->
+                    <select id="itemSelect"></select>
                     <button onclick="addCartItem()">추가</button>
                 </div>
                 <p style="font-size: 12px; color: #777; margin-top: 10px;">* 원하시는 항목을 선택 후 [추가] 버튼을 누르시면 우측 견적서에 누적됩니다.</p>
@@ -261,20 +271,20 @@
                 <input type="email" id="cEmail" placeholder="이메일을 적어주세요." required>
             </div>
             <div class="form-group">
-                <label>예산</label>
-                <input type="text" id="cBudget" placeholder="단가표에서 예상 견적 확인해주세요.">
-            </div>
-            <div class="form-group">
-                <label>마감일</label>
-                <input type="date" id="cDeadline">
-            </div>
-            <div class="form-group">
                 <label>요청 작업</label>
                 <input type="text" id="cWork" placeholder="필요한 작업물을 간략히 기재해주세요.">
             </div>
             <div class="form-group">
                 <label>참고 래퍼런스 링크</label>
                 <input type="text" id="cRef" placeholder="원하시는 디자인 참고할 링크 있으면 기재해주세요.">
+            </div>
+            <div class="form-group">
+                <label>예산</label>
+                <input type="text" id="cBudget" placeholder="단가표에서 예상 견적 확인해주세요.">
+            </div>
+            <div class="form-group">
+                <label>마감일</label>
+                <input type="date" id="cDeadline">
             </div>
             <div class="form-group">
                 <label>기타 사항 / 메모</label>
@@ -296,16 +306,60 @@
             </div>
         </div>
     </div>
-    
+
     <footer class="page-footer">
         <a href="admin">ADMIN</a>
     </footer>
 
     <script>
-        /* 페이드 인 */
+        /* =========================================================
+           💰 가격표 (여기만 고치면 선택 목록과 견적 내역 가격이 같이 바뀝니다)
+           name: 작업 이름 / price: 가격(숫자만, 쉼표 없이)
+           ========================================================= */
+        const priceItems = [
+            { name: '프로모션 배너 1개', price: 30000 },
+            { name: '상세페이지 기본형', price: 300000 },
+            { name: '상세페이지 gif형', price: 400000 },
+            { name: '상세페이지 set1', price: 450000 },
+            { name: '상세페이지 set2', price: 600000 },
+            { name: '상세페이지 set3', price: 800000 },
+            { name: '+기획 추가', price: 200000 },
+            { name: '+소품 촬영/보정 추가', price: 200000 },
+            { name: '+썸네일 추가 1장', price: 2000 },
+            { name: '카드뉴스 세트 5장', price: 100000 },
+            { name: '카드뉴스 세트 10장', price: 150000 },
+            { name: '전단지 1P 당', price: 20000 },
+            { name: '메뉴판 1P 당', price: 30000 },
+            { name: '+누끼 추가 1장', price: 5000 },
+            { name: '이미지 보정', price: 15000 },
+            { name: '패키지 박스/라벨 디자인', price: 200000 },
+            { name: 'CAFE24 세팅 및 구축', price: 350000 },
+            { name: '브랜드 홈페이지 구축', price: 1000000 },
+            { name: '브랜드 홈페이지 구축 프리미엄', price: 3000000 },
+            { name: '+홈페이지 페이지 추가', price: 500000 }
+        ];
+
+        /* 페이드 연출 (투명해진 뒤에는 화면에서 완전히 제거) */
+        const fadeOverlay = document.getElementById('minimalOverlay');
+
+        function hideFadeOverlay() {
+            fadeOverlay.classList.add('is-hidden');
+            setTimeout(() => { fadeOverlay.style.display = 'none'; }, 400);
+        }
+
+        function showFadeOverlay() {
+            fadeOverlay.style.display = 'block';
+            void fadeOverlay.offsetWidth;
+            fadeOverlay.classList.remove('is-hidden');
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            const overlay = document.getElementById('minimalOverlay');
-            requestAnimationFrame(() => overlay.classList.add('is-hidden'));
+            requestAnimationFrame(hideFadeOverlay);
+        });
+
+        // 뒤로가기로 돌아왔을 때 빨간 화면이 남지 않도록
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) hideFadeOverlay();
         });
 
         document.querySelectorAll('.nav-arrow-btn').forEach(link => {
@@ -313,8 +367,7 @@
                 const targetUrl = this.getAttribute('href');
                 if (targetUrl && !targetUrl.startsWith('#')) {
                     e.preventDefault();
-                    const overlay = document.getElementById('minimalOverlay');
-                    overlay.classList.remove('is-hidden');
+                    showFadeOverlay();
                     setTimeout(() => window.location.href = targetUrl, 350);
                 }
             });
@@ -331,10 +384,7 @@
         let currentMain = 'DEVELOP';
         let currentSub = 'ALL';
         let cartItems = [];
-        let portfolioItems = [];
-        
-        
-        // 🌐 깃허브 data.json 데이터를 담을 전역 변수
+        let portfolioItems = []; // 🌐 깃허브 data.json 데이터를 담을 전역 변수
 
         function switchMainTab(mainCat, btn) {
             currentMain = mainCat;
@@ -343,7 +393,7 @@
             btn.classList.add('active');
 
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
-            
+
             const subNavArea = document.getElementById('subNavArea');
 
             if (mainCat === 'PRICE') {
@@ -412,8 +462,8 @@
             const params = new URLSearchParams(window.location.search);
             const startTab = (params.get('tab') || 'DEVELOP').toUpperCase();
             const startBtn = Array.from(document.querySelectorAll('.main-btn'))
-                .find(b => b.innerText.trim() === startTab) || document.querySelector('.main-btn');
-            switchMainTab(startBtn.innerText.trim(), startBtn);
+                .find(b => b.textContent.trim() === startTab) || document.querySelector('.main-btn');
+            switchMainTab(startBtn.textContent.trim(), startBtn);
         }
 
         function getSafePortfolio() {
@@ -452,7 +502,7 @@
             });
         }
 
-        /* DEVELOP 와이드 뷰 렌더링 */
+        /* DEVELOP 와이드 뷰 렌더링 (이미지만 표시) */
         function loadDevelopItems() {
             const items = getSafePortfolio();
             const container = document.getElementById('developGallery');
@@ -474,24 +524,31 @@
                 card.className = 'develop-wide-card';
                 card.innerHTML = `
                     <img class="develop-wide-img" src="${item.image || 'https://via.placeholder.com/800x450'}" alt="Develop 썸네일">
-                    <div class="develop-wide-info">
-                        <h3>[${item.mainCat}] ${item.subCat}</h3>
-                        <p style="font-size:13px; color:#0071e3; word-break:break-all;">티스토리 링크: ${item.detailUrl}</p>
-                    </div>
                 `;
                 card.onclick = () => openModal(item);
                 container.appendChild(card);
             });
         }
 
+        /* PRICE: 선택 목록을 priceItems에서 자동 생성 */
+        function initPriceSelect() {
+            const select = document.getElementById('itemSelect');
+            select.innerHTML = '';
+            priceItems.forEach((item, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${item.name} (${item.price.toLocaleString('ko-KR')}원)`;
+                select.appendChild(opt);
+            });
+        }
+
         /* PRICE 장바구니 계산기 로직 */
         function addCartItem() {
-            const select = document.getElementById('itemSelect');
-            const val = select.value.split('|');
-            const name = val[0];
-            const price = parseInt(val[1]);
+            const idx = parseInt(document.getElementById('itemSelect').value, 10);
+            const item = priceItems[idx];
+            if (!item) return;
 
-            cartItems.push({ name, price });
+            cartItems.push({ name: item.name, price: item.price });
             renderCart();
         }
 
@@ -516,25 +573,32 @@
                 const row = document.createElement('div');
                 row.className = 'cart-item-row';
                 row.innerHTML = `
-                    <span>${item.name} (${item.price.toLocaleString()}원)</span>
+                    <span>${item.name} (${item.price.toLocaleString('ko-KR')}원)</span>
                     <button onclick="removeCartItem(${idx})">&times;</button>
                 `;
                 list.appendChild(row);
             });
 
-            document.getElementById('cartTotalPrice').innerText = total.toLocaleString() + ' 원';
+            document.getElementById('cartTotalPrice').innerText = total.toLocaleString('ko-KR') + ' 원';
         }
 
         function moveToContactForm() {
             const totalStr = document.getElementById('cartTotalPrice').innerText;
             document.getElementById('cBudget').value = totalStr;
-            
-            const contactBtn = Array.from(document.querySelectorAll('.main-btn')).find(b => b.innerText === 'CONTACT');
+
+            const contactBtn = Array.from(document.querySelectorAll('.main-btn')).find(b => b.textContent.trim() === 'CONTACT');
             if (contactBtn) switchMainTab('CONTACT', contactBtn);
         }
 
+        /* 문의 접수 (구글 시트로 전송) */
         function submitContactForm(e) {
             e.preventDefault();
+
+            // 접수일: 오늘 날짜(한국 시간) 자동 입력
+            const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+
+            // 구글 시트에 쌓이는 순서
+            // 업체명, 연락처, 이메일, 요청작업, 레퍼런스, 예산, 접수일, 마감일, 상태, 메모, 종료일
             const data = {
                 name: document.getElementById('cName').value,
                 phone: document.getElementById('cPhone').value,
@@ -542,8 +606,11 @@
                 work: document.getElementById('cWork').value,
                 ref: document.getElementById('cRef').value,
                 budget: document.getElementById('cBudget').value,
+                receivedDate: today,
                 deadline: document.getElementById('cDeadline').value,
-                memo: document.getElementById('cMemo').value
+                status: '접수',
+                memo: document.getElementById('cMemo').value,
+                endDate: ''
             };
 
             fetch('https://script.google.com/macros/s/AKfycbxFDF-XAN7Q95OPq3RUv5KfsZnajW2Y1jMjiPE8L31REhlLzUjsG4OPiDq45erwMZyi/exec', {
@@ -557,9 +624,6 @@
                 console.error(err);
                 alert('접수 중 오류가 발생했습니다.');
             });
-
-            alert('문의가 성공적으로 접수되었습니다!');
-            document.getElementById('contactForm').reset();
         }
 
         /* 모달 제어 (티스토리 팝업 연결) */
@@ -567,7 +631,7 @@
             const modal = document.getElementById('detailModal');
             document.getElementById('modalTitle').innerText = `[${item.mainCat}] ${item.subCat}`;
             const iframe = document.getElementById('modalIframe');
-            
+
             // 어드민에서 입력한 티스토리 상세 링크를 모달창(iframe) 내부로 깔끔하게 띄워줌
             iframe.src = item.detailUrl;
 
@@ -587,7 +651,8 @@
             if (e.target.id === 'detailModal') closeModal();
         }
 
-        // 페이지 로드 시 깃허브 데이터를 먼저 불러온 뒤 화면을 그립니다.
+        // 페이지 로드 시 가격 목록을 만들고, 깃허브 데이터를 불러온 뒤 화면을 그립니다.
+        initPriceSelect();
         fetchPortfolioData();
     </script>
 </body>
